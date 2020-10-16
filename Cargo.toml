@@ -1,0 +1,10 @@
+[package]
+name = "bevy-ten-top"
+version = "0.1.0"
+authors = ["Blaine Price <blaine@ario.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bevy = "0.2.1"
