@@ -1,49 +1,60 @@
-use bevy::prelude::*;
+use bevy::{
+    diagnostic::{Diagnostics, FrameTimeDiagnosticsPlugin},
+    prelude::*,
+};
+use bevy_window::WindowMode;
 
-struct Position {
-    x: f32,
-    y: f32,
-}
-
-struct Person;
-struct Name(String);
-
-fn add_people(mut commands: Commands) {
-    commands
-        .spawn((Person, Name("Elaina Proctor".to_string())))
-        .spawn((Person, Name("Renzo Hume".to_string())))
-        .spawn((Person, Name("Zayna Nieves".to_string())));
-}
-
-struct GreetTimer(Timer);
-fn greet_people(time: Res<Time>, mut timer: ResMut<GreetTimer>, mut query: Query<(&Person, &Name)>) {
-    // update our timer with the time elapsed since the last update
-    timer.0.tick(time.delta_seconds);
-
-    // check to see if the timer has finished. if it has, print our message
-    if timer.0.finished {
-        for (_person, name) in &mut query.iter() {
-            println!("hello {}!", name.0);
+// A unit struct to help identify the FPS UI component, since there may be many Text components
+struct FpsText;
+fn text_update_system(diagnostics: Res<Diagnostics>, mut query: Query<(&mut Text, &FpsText)>) {
+    for (mut text, _tag) in &mut query.iter() {
+        if let Some(fps) = diagnostics.get(FrameTimeDiagnosticsPlugin::FPS) {
+            if let Some(average) = fps.average() {
+                text.value = format!("FPS: {:.2}", average);
+            }
         }
     }
 }
 
-fn print_position_system(position: &Position) {
-    println!("position: {} {}", position.x, position.y);
-}
-
-pub struct HelloPlugin;
-impl Plugin for HelloPlugin {
-    fn build(&self, app: &mut AppBuilder) {
-        app.add_resource(GreetTimer(Timer::from_seconds(2.0, true)))
-            .add_startup_system(add_people.system())
-            .add_system(greet_people.system());
-    }
+fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let font_handle = asset_server.load("assets/fonts/FiraSans-Bold.ttf").unwrap();
+    commands
+        // 2d camera
+        .spawn(UiCameraComponents::default())
+        // texture
+        .spawn(TextComponents {
+            style: Style {
+                align_self: AlignSelf::FlexEnd,
+                ..Default::default()
+            },
+            text: Text {
+                value: "FPS:".to_string(),
+                font: font_handle,
+                style: TextStyle {
+                    font_size: 60.0,
+                    color: Color::WHITE,
+                },
+            },
+            ..Default::default()
+        })
+        .with(FpsText);
 }
 
 fn main() {
     App::build()
+        .add_resource(WindowDescriptor {
+            title: "The Ten Top".to_string(),
+            width: 500,
+            height: 300,
+            vsync: true,
+            resizable: false,
+            mode: WindowMode::Windowed,
+            ..Default::default()
+        })
         .add_default_plugins()
-        .add_plugin(HelloPlugin)
+            .add_resource(ClearColor(Color::rgb(0.5, 0.5, 0.9)))
+        .add_plugin(FrameTimeDiagnosticsPlugin::default())
+        .add_startup_system(setup.system())
+        .add_system(text_update_system.system())
         .run();
 }
