@@ -20,6 +20,7 @@ fn spawn_employees(
         .with(Employee {
             name: "Gerald".to_string(),
         })
+        .with(Velocity(20.0, 0.0))
         .spawn(SpriteComponents {
             transform: Transform::from_translation(Vec3::new(-180.0, 0.0, 0.0)).with_scale(2.0),
             material: materials.add(texture_handle.into()),
@@ -27,7 +28,16 @@ fn spawn_employees(
         })
         .with(Employee {
             name: "Julia".to_string(),
-        });
+        })
+        .with(Velocity(20.0, 0.0));
+}
+
+fn move_employees(time: Res<Time>, mut query: Query<(&Employee, &mut Transform, &Velocity)>) {
+    for (_employee, mut transform, velocity) in &mut query.iter() {
+        let translation = transform.translation_mut();
+        *translation.x_mut() += time.delta_seconds * velocity.0;
+        *translation.y_mut() += time.delta_seconds * velocity.1;
+    }
 }
 
 struct GreetTimer(Timer);
@@ -67,5 +77,6 @@ fn main() {
         .add_startup_system(spawn_employees.system())
         .add_resource(GreetTimer(Timer::from_seconds(2.0, true)))
         .add_system(greet_people.system())
+        .add_system(move_employees.system())
         .run();
 }
