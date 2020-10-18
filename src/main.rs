@@ -32,10 +32,7 @@ fn spawn_employees(
         .with(Velocity(20.0, 0.0));
 }
 
-fn move_employees(
-    time: Res<Time>,
-    mut query: Query<(&Employee, &mut Transform, &Velocity)>,
-) {
+fn move_employees(time: Res<Time>, mut query: Query<(&Employee, &mut Transform, &Velocity)>) {
     for (_employee, mut transform, velocity) in &mut query.iter() {
         let translation = transform.translation_mut();
         *translation.x_mut() += time.delta_seconds * velocity.0;
