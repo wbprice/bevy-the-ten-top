@@ -40,14 +40,24 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         .with(FpsText);
 }
 
-fn spawn_employees(mut commands: Commands) {
+fn spawn_employees(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+) {
+    let texture_handle = asset_server.load("assets/icon.png").unwrap();
     commands
+        .spawn(Camera2dComponents::default())
         .spawn((
             Employee {
                 name: "Gerald".to_string(),
             },
             Position(0.0, 0.0),
             Velocity(0.0, 0.0),
+            SpriteComponents {
+                material: materials.add(texture_handle.into()),
+                ..Default::default()
+            },
         ))
         .spawn((
             Employee {
@@ -55,11 +65,19 @@ fn spawn_employees(mut commands: Commands) {
             },
             Position(244.0, 244.0),
             Velocity(0.0, 0.0),
+            SpriteComponents {
+                material: materials.add(texture_handle.into()),
+                ..Default::default()
+            },
         ));
 }
 
 struct GreetTimer(Timer);
-fn greet_people(time: Res<Time>, mut timer: ResMut<GreetTimer>, mut query: Query<(&Employee, &Position, &Velocity)>) {
+fn greet_people(
+    time: Res<Time>,
+    mut timer: ResMut<GreetTimer>,
+    mut query: Query<(&Employee, &Position, &Velocity)>,
+) {
     timer.0.tick(time.delta_seconds);
     if timer.0.finished {
         for (employee, position, velocity) in &mut query.iter() {
@@ -76,6 +94,20 @@ struct Employee {
     name: String,
 }
 
+fn setup_sprite(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+) {
+    let texture_handle = asset_server.load("assets/icon.png").unwrap();
+    commands
+        .spawn(Camera2dComponents::default())
+        .spawn(SpriteComponents {
+            material: materials.add(texture_handle.into()),
+            ..Default::default()
+        });
+}
+
 fn main() {
     App::build()
         .add_resource(WindowDescriptor {
@@ -88,12 +120,12 @@ fn main() {
             ..Default::default()
         })
         .add_default_plugins()
-        .add_resource(ClearColor(Color::rgb(0.5, 0.5, 0.9)))
-        .add_resource(GreetTimer(Timer::from_seconds(2.0, true)))
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_startup_system(setup.system())
         .add_startup_system(spawn_employees.system())
+        .add_startup_system(setup_sprite.system())
         .add_system(text_update_system.system())
+        .add_resource(GreetTimer(Timer::from_seconds(2.0, true)))
         .add_system(greet_people.system())
         .run();
 }
