@@ -16,30 +16,6 @@ fn text_update_system(diagnostics: Res<Diagnostics>, mut query: Query<(&mut Text
     }
 }
 
-fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let font_handle = asset_server.load("assets/fonts/FiraSans-Bold.ttf").unwrap();
-    commands
-        // 2d camera
-        .spawn(UiCameraComponents::default())
-        // texture
-        .spawn(TextComponents {
-            style: Style {
-                align_self: AlignSelf::FlexEnd,
-                ..Default::default()
-            },
-            text: Text {
-                value: "FPS:".to_string(),
-                font: font_handle,
-                style: TextStyle {
-                    font_size: 60.0,
-                    color: Color::WHITE,
-                },
-            },
-            ..Default::default()
-        })
-        .with(FpsText);
-}
-
 fn spawn_employees(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
@@ -49,14 +25,13 @@ fn spawn_employees(
     commands
         .spawn(Camera2dComponents::default())
         .spawn(SpriteComponents {
+            transform: Transform::from_translation(Vec3::new(-215.0, 0.0, 0.0)).with_scale(2.0),
             material: materials.add(texture_handle.into()),
             ..Default::default()
         })
         .with(Employee {
             name: "Gerald".to_string(),
-        })
-        .with(Position(0.0, 0.0))
-        .with(Velocity(0.0, 0.0));
+        });
 }
 
 struct GreetTimer(Timer);
@@ -81,20 +56,6 @@ struct Employee {
     name: String,
 }
 
-fn setup_sprite(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
-) {
-    let texture_handle = asset_server.load("assets/sprites/icon.png").unwrap();
-    commands
-        .spawn(Camera2dComponents::default())
-        .spawn(SpriteComponents {
-            material: materials.add(texture_handle.into()),
-            ..Default::default()
-        });
-}
-
 fn main() {
     App::build()
         .add_resource(WindowDescriptor {
@@ -107,11 +68,7 @@ fn main() {
             ..Default::default()
         })
         .add_default_plugins()
-        .add_plugin(FrameTimeDiagnosticsPlugin::default())
-        .add_startup_system(setup.system())
         .add_startup_system(spawn_employees.system())
-        // .add_startup_system(setup_sprite.system())
-        .add_system(text_update_system.system())
         .add_resource(GreetTimer(Timer::from_seconds(2.0, true)))
         .add_system(greet_people.system())
         .run();
