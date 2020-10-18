@@ -20,7 +20,8 @@ fn spawn_employees(
         .with(Employee {
             name: "Gerald".to_string(),
         })
-        .with(Velocity(20.0, 0.0))
+        .with(Velocity(0.0, 0.0))
+        .with(Destination(Vec3::new(100.0, 100.0, 0.0)))
         .spawn(SpriteComponents {
             transform: Transform::from_translation(Vec3::new(-180.0, 0.0, 0.0)).with_scale(2.0),
             material: materials.add(texture_handle.into()),
@@ -29,7 +30,8 @@ fn spawn_employees(
         .with(Employee {
             name: "Julia".to_string(),
         })
-        .with(Velocity(20.0, 0.0));
+        .with(Velocity(0.0, 0.0))
+        .with(Destination(Vec3::new(100.0, 100.0, 0.0)));
 }
 
 fn move_employees(time: Res<Time>, mut query: Query<(&Employee, &mut Transform, &Velocity)>) {
@@ -37,6 +39,29 @@ fn move_employees(time: Res<Time>, mut query: Query<(&Employee, &mut Transform, 
         let translation = transform.translation_mut();
         *translation.x_mut() += time.delta_seconds * velocity.0;
         *translation.y_mut() += time.delta_seconds * velocity.1;
+    }
+}
+
+fn move_to_destination(
+    mut commands: Commands,
+    mut query: Query<(Entity, &Transform, &mut Velocity, &Destination)>,
+) {
+    for (entity, transform, mut velocity, destination) in &mut query.iter() {
+        let translation = transform.translation();
+        // How close is the entity to the destination?
+        let close_enough = 4.0;
+        let difference = translation - destination.0;
+        let distance = difference.length();
+
+        if distance < close_enough {
+            commands.remove_one::<Destination>(entity);
+            velocity.0 = 0.0;
+            velocity.1 = 0.0;
+        } else {
+            let heading = (difference.y()).atan2(difference.x()) * 180.0 / 3.14;
+            velocity.0 = 20.0 * heading.cos();
+            velocity.1 = 20.0 * heading.sin();
+        }
     }
 }
 
@@ -60,6 +85,7 @@ struct Velocity(f32, f32);
 struct Employee {
     name: String,
 }
+struct Destination(Vec3);
 
 fn main() {
     App::build()
@@ -78,5 +104,6 @@ fn main() {
         .add_resource(GreetTimer(Timer::from_seconds(2.0, true)))
         .add_system(greet_people.system())
         .add_system(move_employees.system())
+        .add_system(move_to_destination.system())
         .run();
 }
