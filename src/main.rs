@@ -45,31 +45,18 @@ fn spawn_employees(
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    let texture_handle = asset_server.load("assets/icon.png").unwrap();
+    let texture_handle = asset_server.load("assets/sprites/person.png").unwrap();
     commands
         .spawn(Camera2dComponents::default())
-        .spawn((
-            Employee {
-                name: "Gerald".to_string(),
-            },
-            Position(0.0, 0.0),
-            Velocity(0.0, 0.0),
-            SpriteComponents {
-                material: materials.add(texture_handle.into()),
-                ..Default::default()
-            },
-        ))
-        .spawn((
-            Employee {
-                name: "Julie".to_string(),
-            },
-            Position(244.0, 244.0),
-            Velocity(0.0, 0.0),
-            SpriteComponents {
-                material: materials.add(texture_handle.into()),
-                ..Default::default()
-            },
-        ));
+        .spawn(SpriteComponents {
+            material: materials.add(texture_handle.into()),
+            ..Default::default()
+        })
+        .with(Employee {
+            name: "Gerald".to_string(),
+        })
+        .with(Position(0.0, 0.0))
+        .with(Velocity(0.0, 0.0));
 }
 
 struct GreetTimer(Timer);
@@ -99,7 +86,7 @@ fn setup_sprite(
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    let texture_handle = asset_server.load("assets/icon.png").unwrap();
+    let texture_handle = asset_server.load("assets/sprites/icon.png").unwrap();
     commands
         .spawn(Camera2dComponents::default())
         .spawn(SpriteComponents {
@@ -123,7 +110,7 @@ fn main() {
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_startup_system(setup.system())
         .add_startup_system(spawn_employees.system())
-        .add_startup_system(setup_sprite.system())
+        // .add_startup_system(setup_sprite.system())
         .add_system(text_update_system.system())
         .add_resource(GreetTimer(Timer::from_seconds(2.0, true)))
         .add_system(greet_people.system())
