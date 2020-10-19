@@ -42,6 +42,21 @@ fn move_employees(time: Res<Time>, mut query: Query<(&Employee, &mut Transform, 
     }
 }
 
+fn update_employee_sprites(
+    texture_atlases: Res<Assets<TextureAtlas>>,
+    mut query: Query<(
+        &Employee,
+        &Velocity,
+        &mut Timer,
+        &mut TextureAtlasSprite,
+        &Handle<TextureAtlas>,
+    )>,
+) {
+    for (_employee, velocity, mut timer, mut sprite, texture_atlas_handle) in &mut query.iter() {
+
+    }
+}
+
 fn move_to_destination(
     mut commands: Commands,
     mut query: Query<(Entity, &Transform, &mut Velocity, &Destination)>,
