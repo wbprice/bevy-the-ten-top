@@ -8,27 +8,20 @@ fn setup_camera(mut commands: Commands) {
 fn spawn_employees(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
-    let texture_handle = asset_server.load("assets/sprites/person.png").unwrap();
+    let texture_handle = asset_server.load("assets/sprites/person.png");
+    let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(24.0, 24.0), 7, 1);
+    let texture_atlas_handle = texture_atlases.add(texture_atlas);
+
     commands
         .spawn(SpriteComponents {
+            texture_atlas: texture_atlas_handle,
             transform: Transform::from_translation(Vec3::new(-215.0, 0.0, 0.0)).with_scale(2.0),
-            material: materials.add(texture_handle.into()),
             ..Default::default()
         })
         .with(Employee {
             name: "Gerald".to_string(),
-        })
-        .with(Velocity(0.0, 0.0))
-        .with(Destination(Vec3::new(100.0, 100.0, 0.0)))
-        .spawn(SpriteComponents {
-            transform: Transform::from_translation(Vec3::new(-180.0, 0.0, 0.0)).with_scale(2.0),
-            material: materials.add(texture_handle.into()),
-            ..Default::default()
-        })
-        .with(Employee {
-            name: "Julia".to_string(),
         })
         .with(Velocity(0.0, 0.0))
         .with(Destination(Vec3::new(100.0, 100.0, 0.0)));
@@ -53,7 +46,10 @@ fn update_employee_sprites(
     )>,
 ) {
     for (_employee, velocity, mut timer, mut sprite, texture_atlas_handle) in &mut query.iter() {
-
+        if timer.finished {
+            let texture_atlas = texture_atlases.get(texture_atlas_handle).unwrap();
+            sprite.index = ((sprite.index as usize + 1) % texture_atlas.textures.len()) as u32;
+        }
     }
 }
 
@@ -64,7 +60,7 @@ fn move_to_destination(
     for (entity, transform, mut velocity, destination) in &mut query.iter() {
         let translation = transform.translation();
         // How close is the entity to the destination?
-        let close_enough = 4.0;
+        let close_enough = 8.0;
         let difference = translation - destination.0;
         let distance = difference.length();
 
