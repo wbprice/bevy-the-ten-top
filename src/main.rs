@@ -10,7 +10,9 @@ fn spawn_employees(
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
-    let texture_handle = asset_server.load("assets/sprites/person-run-cycle.png").unwrap();
+    let texture_handle = asset_server
+        .load("assets/sprites/person-run-cycle.png")
+        .unwrap();
     let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(144.0, 24.0), 6, 1);
     let texture_atlas_handle = texture_atlases.add(texture_atlas);
 
@@ -42,7 +44,7 @@ fn animate_employees(
         &Velocity,
         &mut Timer,
         &mut TextureAtlasSprite,
-        &Handle<TextureAtlas>
+        &Handle<TextureAtlas>,
     )>,
 ) {
     for (velocity, timer, mut sprite, texture_atlas_handle) in &mut query.iter() {
@@ -66,7 +68,7 @@ fn move_to_destination(
     for (entity, transform, mut velocity, destination) in &mut query.iter() {
         let translation = transform.translation();
         // How close is the entity to the destination?
-        let close_enough = 8.0;
+        let close_enough = 32.0;
         let difference = translation - destination.0;
         let distance = difference.length();
 
@@ -76,24 +78,8 @@ fn move_to_destination(
             velocity.1 = 0.0;
         } else {
             let heading = (difference.y()).atan2(difference.x()) * 180.0 / 3.14;
-            velocity.0 = 20.0 * heading.cos();
-            velocity.1 = 20.0 * heading.sin();
-        }
-    }
-}
-
-struct GreetTimer(Timer);
-fn greet_people(
-    time: Res<Time>,
-    mut timer: ResMut<GreetTimer>,
-    mut query: Query<(&Employee, &Transform)>,
-) {
-    timer.0.tick(time.delta_seconds);
-    if timer.0.finished {
-        for (employee, transform) in &mut query.iter() {
-            let translation = transform.translation();
-            println!("hello {}!", employee.name);
-            println!("location {},{}!", translation.x(), translation.y());
+            velocity.0 = 50.0 * heading.cos();
+            velocity.1 = 50.0 * heading.sin();
         }
     }
 }
@@ -118,8 +104,6 @@ fn main() {
         .add_default_plugins()
         .add_startup_system(setup_camera.system())
         .add_startup_system(spawn_employees.system())
-        .add_resource(GreetTimer(Timer::from_seconds(2.0, true)))
-        .add_system(greet_people.system())
         .add_system(move_employees.system())
         .add_system(move_to_destination.system())
         .add_system(animate_employees.system())
