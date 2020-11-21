@@ -2,7 +2,6 @@ use bevy::prelude::*;
 use bevy_window::WindowMode;
 
 mod plugins;
-
 use crate::plugins::EmployeePlugin;
 
 fn setup_camera(mut commands: Commands) {
@@ -20,8 +19,8 @@ fn main() {
             mode: WindowMode::Windowed,
             ..Default::default()
         })
-        .add_default_plugins()
         .add_startup_system(setup_camera.system())
+        .add_plugins(DefaultPlugins)
         .add_plugin(EmployeePlugin)
         .run();
 }
