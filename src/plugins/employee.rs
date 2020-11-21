@@ -45,7 +45,12 @@ fn setup(
 
 fn animate_sprite_system(
     texture_atlases: Res<Assets<TextureAtlas>>,
-    mut query: Query<(&Velocity, &mut Timer, &mut TextureAtlasSprite, &Handle<TextureAtlas>)>,
+    mut query: Query<(
+        &Velocity,
+        &mut Timer,
+        &mut TextureAtlasSprite,
+        &Handle<TextureAtlas>,
+    )>,
 ) {
     for (velocity, timer, mut sprite, texture_atlas_handle) in query.iter_mut() {
         if timer.finished {
