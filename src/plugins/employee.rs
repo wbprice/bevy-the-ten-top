@@ -1,4 +1,9 @@
 use bevy::prelude::*;
+use crate::plugins::{
+    Task,
+    Tasks
+};
+
 pub struct EmployeePlugin;
 
 struct Velocity(f32, f32);
@@ -6,6 +11,7 @@ struct Velocity(f32, f32);
 pub struct Employee {
     name: String,
 }
+#[derive(Copy, Clone)]
 pub struct Destination(Vec3);
 
 impl Plugin for EmployeePlugin {
@@ -40,6 +46,7 @@ fn setup(
         })
         .with(Velocity(0.0, 0.0))
         .with(Destination(Vec3::new(100.0, 100.0, 0.0)))
+        // .with(Task::new())
         .with(Timer::from_seconds(0.1, true));
 }
 

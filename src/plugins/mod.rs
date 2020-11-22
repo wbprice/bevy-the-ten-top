@@ -9,5 +9,9 @@ pub use self::{
         Employee,
         Destination,
     },
-    tasks::TasksPlugin
+    tasks::{
+        TasksPlugin,
+        Task,
+        Tasks
+    }
 };
