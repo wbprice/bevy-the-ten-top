@@ -3,10 +3,10 @@ pub struct EmployeePlugin;
 
 struct Velocity(f32, f32);
 #[derive(Debug)]
-struct Employee {
+pub struct Employee {
     name: String,
 }
-struct Destination(Vec3);
+pub struct Destination(Vec3);
 
 impl Plugin for EmployeePlugin {
     fn build(&self, app: &mut AppBuilder) {
