@@ -88,7 +88,9 @@ fn goto(
                     StepStatus::InProgress => {
                         // is this actor close enough to the destination?
                         // employee#move_to_destination removes the destination component
-                        for (ent, empl) in dest_query.iter_mut() {
+                        // So if this entity does not have a destination component, we can consider
+                        // this step completed
+                        for (ent, _empl) in dest_query.iter_mut() {
                             if ent == entity {
                                 step.status = StepStatus::Completed;
                             }
