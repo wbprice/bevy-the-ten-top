@@ -21,9 +21,6 @@ impl Task {
                     Step::new(Steps::Take(thing)),
                 ],
             },
-            _ => {
-                unimplemented!();
-            }
         }
     }
 }
@@ -74,10 +71,10 @@ fn goto(
     mut query: Query<(Entity, &Employee, &mut Task)>,
     mut dest_query: Query<Without<Destination, (Entity, &Employee)>>,
 ) {
-    // Find employees with the GoTo task
-    for (entity, employee, mut task) in query.iter_mut() {
-        if let Tasks::GoTo(destination) = task.task {
-            if let Some(step) = task.steps.first_mut() {
+    // Find employees with a GoTo step to take
+    for (entity, _employee, mut task) in query.iter_mut() {
+        if let Some(step) = task.steps.first_mut() {
+            if let Steps::GoTo(destination) = step.step {
                 // Do the next step of the task
                 match step.status {
                     StepStatus::New => {
@@ -96,12 +93,12 @@ fn goto(
                             }
                         }
                     }
+                    StepStatus::Blocked => {
+                        unreachable!();
+                    },
                     StepStatus::Completed => {
                         // Remove this step from the list, queueing up the next one.
                         task.steps.remove(0);
-                    }
-                    _ => {
-                        unimplemented!();
                     }
                 }
             } else {
