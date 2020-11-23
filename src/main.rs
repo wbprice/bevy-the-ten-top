@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_window::WindowMode;
 
 mod plugins;
-use crate::plugins::{DishPlugin, EmployeePlugin};
+use crate::plugins::{DishPlugin, EmployeePlugin, TasksPlugin};
 
 fn setup_camera(mut commands: Commands) {
     commands.spawn(Camera2dComponents::default());
@@ -23,5 +23,6 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugin(EmployeePlugin)
         .add_plugin(DishPlugin)
+        .add_plugin(TasksPlugin)
         .run();
 }
