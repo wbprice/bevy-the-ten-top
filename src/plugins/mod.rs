@@ -4,14 +4,6 @@ mod tasks;
 
 pub use self::{
     dish::DishPlugin,
-    employee::{
-        EmployeePlugin,
-        Employee,
-        Destination,
-    },
-    tasks::{
-        TasksPlugin,
-        Task,
-        Tasks
-    }
+    employee::{Destination, Employee, EmployeePlugin},
+    tasks::{Task, Tasks, TasksPlugin},
 };

@@ -1,8 +1,5 @@
+use crate::plugins::{Task, Tasks};
 use bevy::prelude::*;
-use crate::plugins::{
-    Task,
-    Tasks
-};
 
 pub struct EmployeePlugin;
 
@@ -45,8 +42,9 @@ fn setup(
             name: "Gerald".to_string(),
         })
         .with(Velocity(0.0, 0.0))
-        .with(Destination(Vec3::new(100.0, 100.0, 0.0)))
-        // .with(Task::new())
+        .with(Task::new(Tasks::GoTo(Destination(Vec3::new(
+            100.0, 100.0, 0.0,
+        )))))
         .with(Timer::from_seconds(0.1, true));
 }
 
