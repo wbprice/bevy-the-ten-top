@@ -69,48 +69,43 @@ impl Plugin for TasksPlugin {
     }
 }
 
-fn goto(mut commands: Commands, mut query: Query<(Entity, &Employee, &mut Task)>) {
-    // Find employees with tasks
+fn goto(
+    mut commands: Commands,
+    mut query: Query<(Entity, &Employee, &mut Task)>,
+    mut dest_query: Query<Without<Destination, (Entity, &Employee)>>,
+) {
+    // Find employees with the GoTo task
     for (entity, employee, mut task) in query.iter_mut() {
-        let mut should_unshift = false;
-        match task.task {
-            Tasks::GoTo(destination) => {
-                if let Some(step) = task.steps.first_mut() {
-                    // Do the next step of the task
-                    match step.status {
-                        StepStatus::New => {
-                            dbg!("new");
-                            // add destination to the actor entity
-                            commands.insert_one(entity, destination);
-                            step.status = StepStatus::InProgress;
-                        }
-                        StepStatus::InProgress => {
-                            dbg!("in progress");
-                            // is the actor close enough to the destination? 
-                            // employee#move_to_destination removes the destination component
-                            step.status = StepStatus::Completed;
-                        }
-                        StepStatus::Completed => {
-                            dbg!("done");
-                            should_unshift = true;
-                        },
-                        _ => {
-                            unimplemented!();
+        if let Tasks::GoTo(destination) = task.task {
+            if let Some(step) = task.steps.first_mut() {
+                // Do the next step of the task
+                match step.status {
+                    StepStatus::New => {
+                        // add destination to the actor entity
+                        commands.insert_one(entity, destination);
+                        step.status = StepStatus::InProgress;
+                    }
+                    StepStatus::InProgress => {
+                        // is this actor close enough to the destination?
+                        // employee#move_to_destination removes the destination component
+                        for (ent, empl) in dest_query.iter_mut() {
+                            if ent == entity {
+                                step.status = StepStatus::Completed;
+                            }
                         }
                     }
-                } else {
-                    // All done, remove the task from the entity
-                    commands.remove_one::<Task>(entity);
+                    StepStatus::Completed => {
+                        // Remove this step from the list, queueing up the next one.
+                        task.steps.remove(0);
+                    }
+                    _ => {
+                        unimplemented!();
+                    }
                 }
-
-                if should_unshift {
-                    task.steps.remove(0);
-                }
-            },
-            _ => {
-                unimplemented!();
+            } else {
+                // All done, remove the task from the entity
+                commands.remove_one::<Task>(entity);
             }
         }
-        
     }
 }
