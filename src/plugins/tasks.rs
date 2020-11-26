@@ -62,7 +62,48 @@ pub struct TasksPlugin;
 
 impl Plugin for TasksPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_system(goto.system());
+        app
+            .add_system(goto.system())
+            .add_system(goto_entity.system())
+            .add_system(take.system());
+    }
+}
+
+fn take(
+    mut commands: Commands,
+    mut query: Query<(Entity, &Employee, &Transform, &mut Task)>,
+    mut entity_query: Query<(Entity, &Transform)>
+) {
+    for (entity, employee, transform, mut task) in query.iter_mut() {
+        if let Some(step) = task.steps.first_mut() {
+            if let Steps::Take(entity) = step.step {
+                match step.status {
+                    StepStatus::New => {
+                        step.status = StepStatus::InProgress;
+                    },
+                    StepStatus::InProgress => {
+                        // Is actor close enough to take the entity?
+                        for (ent, transf) in entity_query.iter() {
+                            if ent == entity {
+                                let actor_location = transform.translation;
+                                let ent_location = transf.translation;
+                                let distance = (actor_location - ent_location).length();
+                                if distance < 32.0 {
+                                    commands.push_children(entity, &[ent]);
+                                    step.status = StepStatus::Completed;
+                                }
+                            }
+                        }
+                    },
+                    StepStatus::Completed => {
+                        task.steps.remove(0);
+                    },
+                    StepStatus::Blocked => {
+                        unreachable!();
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -94,6 +135,57 @@ fn goto(
                         }
                     }
                     StepStatus::Blocked => {
+                        // GoTo is not blockable yet
+                        unreachable!();
+                    },
+                    StepStatus::Completed => {
+                        // Remove this step from the list, queueing up the next one.
+                        task.steps.remove(0);
+                    }
+                }
+            } else {
+                // All done, remove the task from the entity
+                commands.remove_one::<Task>(entity);
+            }
+        }
+    }
+}
+
+fn goto_entity(
+    mut commands: Commands,
+    mut query: Query<(Entity, &Employee, &mut Task)>,
+    mut ent_query: Query<(Entity, &Transform)>,
+    mut dest_query: Query<Without<Destination, (Entity, &Employee)>>,
+) {
+    // Find employees with a GoTo step to take
+    for (entity, _employee, mut task) in query.iter_mut() {
+        if let Some(step) = task.steps.first_mut() {
+            if let Steps::GoToEntity(entity) = step.step {
+                // Do the next step of the task
+                match step.status {
+                    StepStatus::New => {
+                        // Where is the thing to pick up?
+                        // add destination to the actor entity
+                        for (ent, transform) in ent_query.iter() {
+                            if ent == entity {
+                                commands.insert_one(entity, Destination(Vec3::new(0.0, 0.0, 0.0)));
+                                step.status = StepStatus::InProgress;
+                            }
+                        }
+                    }
+                    StepStatus::InProgress => {
+                        // is this actor close enough to the destination?
+                        // employee#move_to_destination removes the destination component
+                        // So if this entity does not have a destination component, we can consider
+                        // this step completed
+                        for (ent, _empl) in dest_query.iter_mut() {
+                            if ent == entity {
+                                step.status = StepStatus::Completed;
+                            }
+                        }
+                    }
+                    StepStatus::Blocked => {
+                        // GoTo is not blockable yet
                         unreachable!();
                     },
                     StepStatus::Completed => {
