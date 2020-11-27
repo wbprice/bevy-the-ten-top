@@ -1,12 +1,15 @@
+use crate::plugins::{DishType, Task, Tasks};
 use bevy::prelude::*;
+
 pub struct EmployeePlugin;
 
 struct Velocity(f32, f32);
 #[derive(Debug)]
-struct Employee {
+pub struct Employee {
     name: String,
 }
-struct Destination(Vec3);
+#[derive(Copy, Clone)]
+pub struct Destination(pub Vec3);
 
 impl Plugin for EmployeePlugin {
     fn build(&self, app: &mut AppBuilder) {
@@ -39,7 +42,7 @@ fn setup(
             name: "Gerald".to_string(),
         })
         .with(Velocity(0.0, 0.0))
-        .with(Destination(Vec3::new(100.0, 100.0, 0.0)))
+        .with(Task::new(Tasks::FindDish(DishType::HotDog)))
         .with(Timer::from_seconds(0.1, true));
 }
 

@@ -1,9 +1,11 @@
 use bevy::prelude::*;
 
-enum DishType {
+#[derive(Clone, Copy, PartialEq)]
+pub enum DishType {
     HotDog,
 }
-struct Dish(DishType);
+#[derive(Clone, Copy)]
+pub struct Dish(pub DishType);
 pub struct DishPlugin;
 
 impl Plugin for DishPlugin {
@@ -18,8 +20,8 @@ fn setup(
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     let texture_handle = asset_server.load("sprites/hotdog.png");
-    let mut transform = Transform::from_translation(Vec3::new(0.0, 0.0, 0.0));
-    transform.scale = Vec3::splat(3.0);
+    let mut transform = Transform::from_translation(Vec3::new(100.0, 100.0, 0.0));
+    transform.scale = Vec3::splat(6.0);
 
     commands
         .spawn(SpriteComponents {
