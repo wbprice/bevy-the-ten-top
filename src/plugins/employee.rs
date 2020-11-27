@@ -1,4 +1,4 @@
-use crate::plugins::{Task, Tasks};
+use crate::plugins::{Task, Tasks, DishType};
 use bevy::prelude::*;
 
 pub struct EmployeePlugin;
@@ -9,7 +9,7 @@ pub struct Employee {
     name: String,
 }
 #[derive(Copy, Clone)]
-pub struct Destination(Vec3);
+pub struct Destination(pub Vec3);
 
 impl Plugin for EmployeePlugin {
     fn build(&self, app: &mut AppBuilder) {
@@ -42,9 +42,7 @@ fn setup(
             name: "Gerald".to_string(),
         })
         .with(Velocity(0.0, 0.0))
-        .with(Task::new(Tasks::GoTo(Destination(Vec3::new(
-            100.0, 100.0, 0.0,
-        )))))
+        .with(Task::new(Tasks::GoToDish(DishType::HotDog)))
         .with(Timer::from_seconds(0.1, true));
 }
 

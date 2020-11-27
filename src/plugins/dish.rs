@@ -1,9 +1,11 @@
 use bevy::prelude::*;
 
-enum DishType {
+#[derive(Clone, Copy, PartialEq)]
+pub enum DishType {
     HotDog,
 }
-struct Dish(DishType);
+#[derive(Clone, Copy)]
+pub struct Dish(pub DishType);
 pub struct DishPlugin;
 
 impl Plugin for DishPlugin {
