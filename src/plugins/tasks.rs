@@ -16,16 +16,15 @@ impl Task {
             },
             Tasks::Pickup(dish_type) => Task {
                 task: task_type,
-                steps: vec![
-                    Step::new(Steps::GoToDishType(dish_type)),
-                ],
+                steps: vec![Step::new(Steps::GoToDishType(dish_type))],
             },
             Tasks::GoToDish(dish_type) => Task {
                 task: task_type,
                 steps: vec![
-                    Step::new(Steps::GoToDishType(dish_type))
-                ]
-            }
+                    Step::new(Steps::GoToDishType(dish_type)),
+                    Step::new(Steps::GoTo(Destination(Vec3::new(-100.0, -100.0, 0.0)))),
+                ],
+            },
         }
     }
 }
@@ -33,7 +32,7 @@ impl Task {
 pub enum Tasks {
     Pickup(DishType),
     GoTo(Destination),
-    GoToDish(DishType)
+    GoToDish(DishType),
 }
 
 struct Step {
@@ -52,9 +51,7 @@ impl Step {
 
 enum Steps {
     GoTo(Destination),
-    GoToEntity(Entity),
     GoToDishType(DishType),
-    Take(Entity),
 }
 
 #[derive(Clone, Copy)]
@@ -68,44 +65,9 @@ pub struct TasksPlugin;
 
 impl Plugin for TasksPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_system(goto.system())
-            .add_system(goto_dish.system())
-            .add_system(take.system());
-    }
-}
-
-fn take(
-    mut commands: Commands,
-    mut query: Query<(Entity, &Employee, &Transform, &mut Task)>,
-    mut entity_query: Query<(Entity, &Transform)>,
-) {
-    for (entity, employee, transform, mut task) in query.iter_mut() {
-        if let Some(step) = task.steps.first_mut() {
-            if let Steps::Take(entity) = step.step {
-                match step.status {
-                    StepStatus::New => {
-                        step.status = StepStatus::InProgress;
-                    }
-                    StepStatus::InProgress => {
-                        // Is actor close enough to take the entity?
-                        for (ent, transf) in entity_query.iter() {
-                            if ent == entity {
-                                let actor_location = transform.translation;
-                                let ent_location = transf.translation;
-                                let distance = (actor_location - ent_location).length();
-                                if distance < 32.0 {
-                                    commands.push_children(entity, &[ent]);
-                                    step.status = StepStatus::Completed;
-                                }
-                            }
-                        }
-                    }
-                    StepStatus::Completed => {
-                        task.steps.remove(0);
-                    }
-                }
-            }
-        }
+        app
+            .add_system(goto.system())
+            .add_system(goto_dish.system());
     }
 }
 
@@ -141,9 +103,6 @@ fn goto(
                         task.steps.remove(0);
                     }
                 }
-            } else {
-                // All done, remove the task from the entity
-                commands.remove_one::<Task>(entity);
             }
         }
     }
@@ -164,6 +123,7 @@ fn goto_dish(
                         for (dish_entity, dish, dish_transform) in dish_query.iter() {
                             if dish_type == dish.0 {
                                 let destination = dish_transform.translation;
+                                dbg!(destination);
                                 commands.insert_one(entity, Destination(destination));
                                 step.status = StepStatus::InProgress;
                             }

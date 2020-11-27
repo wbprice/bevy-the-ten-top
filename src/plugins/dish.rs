@@ -20,7 +20,7 @@ fn setup(
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     let texture_handle = asset_server.load("sprites/hotdog.png");
-    let mut transform = Transform::from_translation(Vec3::new(0.0, 0.0, 0.0));
+    let mut transform = Transform::from_translation(Vec3::new(100.0, 100.0, 0.0));
     transform.scale = Vec3::splat(3.0);
 
     commands
