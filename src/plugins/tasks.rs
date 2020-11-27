@@ -10,18 +10,10 @@ pub struct Task {
 impl Task {
     pub fn new(task_type: Tasks) -> Task {
         match task_type {
-            Tasks::GoTo(destination) => Task {
-                task: task_type,
-                steps: vec![Step::new(Steps::GoTo(destination))],
-            },
-            Tasks::Pickup(dish_type) => Task {
-                task: task_type,
-                steps: vec![Step::new(Steps::GoToDishType(dish_type))],
-            },
-            Tasks::GoToDish(dish_type) => Task {
+            Tasks::FindDish(dish_type) => Task {
                 task: task_type,
                 steps: vec![
-                    Step::new(Steps::GoToDishType(dish_type)),
+                    Step::new(Steps::PickupDishType(dish_type)),
                     Step::new(Steps::GoTo(Destination(Vec3::new(-100.0, -100.0, 0.0)))),
                 ],
             },
@@ -30,9 +22,7 @@ impl Task {
 }
 
 pub enum Tasks {
-    Pickup(DishType),
-    GoTo(Destination),
-    GoToDish(DishType),
+    FindDish(DishType),
 }
 
 struct Step {
@@ -51,7 +41,7 @@ impl Step {
 
 enum Steps {
     GoTo(Destination),
-    GoToDishType(DishType),
+    PickupDishType(DishType),
 }
 
 #[derive(Clone, Copy)]
@@ -113,7 +103,7 @@ fn goto_dish(
 ) {
     for (entity, _employee, mut task, transform) in query.iter_mut() {
         if let Some(step) = task.steps.first_mut() {
-            if let Steps::GoToDishType(dish_type) = step.step {
+            if let Steps::PickupDishType(dish_type) = step.step {
                 match step.status {
                     StepStatus::New => {
                         // Where is the thing to pick up?
