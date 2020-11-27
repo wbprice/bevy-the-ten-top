@@ -3,7 +3,7 @@ mod employee;
 mod tasks;
 
 pub use self::{
-    dish::{DishPlugin, Dish, DishType},
-    employee::{Employee, Destination, EmployeePlugin},
+    dish::{Dish, DishPlugin, DishType},
+    employee::{Destination, Employee, EmployeePlugin},
     tasks::{Task, Tasks, TasksPlugin},
 };

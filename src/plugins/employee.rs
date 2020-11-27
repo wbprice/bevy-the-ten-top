@@ -1,4 +1,4 @@
-use crate::plugins::{Task, Tasks, DishType};
+use crate::plugins::{DishType, Task, Tasks};
 use bevy::prelude::*;
 
 pub struct EmployeePlugin;

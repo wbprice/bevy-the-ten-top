@@ -65,9 +65,7 @@ pub struct TasksPlugin;
 
 impl Plugin for TasksPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app
-            .add_system(goto.system())
-            .add_system(goto_dish.system());
+        app.add_system(goto.system()).add_system(goto_dish.system());
     }
 }
 
@@ -89,7 +87,7 @@ fn goto(
                     }
                     StepStatus::InProgress => {
                         // is this actor close enough to the destination?
-                        // employee#move_to_desitination removes the destination component
+                        // employee#move_to_destination removes the destination component
                         // So if this entity does not have a destination component, we can consider
                         // this step completed
                         for (ent, _empl) in dest_query.iter_mut() {
@@ -111,7 +109,7 @@ fn goto(
 fn goto_dish(
     mut commands: Commands,
     mut query: Query<(Entity, &Employee, &mut Task, &Transform)>,
-    mut dish_query: Query<(Entity, &Dish, &Transform)>,
+    mut dish_query: Query<(Entity, &Dish, &mut Transform)>,
 ) {
     for (entity, _employee, mut task, transform) in query.iter_mut() {
         if let Some(step) = task.steps.first_mut() {
@@ -120,10 +118,9 @@ fn goto_dish(
                     StepStatus::New => {
                         // Where is the thing to pick up?
                         // Add a destination to the actor
-                        for (dish_entity, dish, dish_transform) in dish_query.iter() {
+                        for (_dish_ent, dish, dish_transform) in dish_query.iter_mut() {
                             if dish_type == dish.0 {
                                 let destination = dish_transform.translation;
-                                dbg!(destination);
                                 commands.insert_one(entity, Destination(destination));
                                 step.status = StepStatus::InProgress;
                             }
@@ -131,13 +128,14 @@ fn goto_dish(
                     }
                     StepStatus::InProgress => {
                         // Is the person close enough to the dish?
-                        for (dish_entity, dish, dish_transform) in dish_query.iter() {
+                        for (dish_entity, dish, mut dish_transform) in dish_query.iter_mut() {
                             if dish_type == dish.0 {
-                                let destination = dish_transform.translation;
-                                let actor_location = transform.translation;
-                                let distance = (destination - actor_location).length();
+                                let distance =
+                                    (dish_transform.translation - transform.translation).length();
                                 if distance < 32.0 {
                                     commands.push_children(entity, &[dish_entity]);
+                                    dish_transform.scale = Vec3::splat(2.0);
+                                    dish_transform.translation = Vec3::new(0.0, 0.0, 0.0);
                                     step.status = StepStatus::Completed;
                                 }
                             }
