@@ -1,0 +1,182 @@
+[
+  (
+    entity: 0,
+    components: [
+      {
+        "type": "FloorTile",
+        "map": {
+          "x": 0.0,
+          "y": 0.0,
+        },
+      },
+    ],
+  ),
+  (
+    entity: 1,
+    components: [
+      {
+        "type": "FloorTile",
+        "map": {
+          "x": 24.0,
+          "y": 0.0,
+        },
+      },
+    ],
+  ),
+  (
+    entity: 2,
+    components: [
+      {
+        "type": "FloorTile",
+        "map": {
+          "x": 48.0,
+          "y": 0.0,
+        },
+      },
+    ],
+  ),
+  (
+    entity: 3,
+    components: [
+      {
+        "type": "FloorTile",
+        "map": {
+          "x": 72.0,
+          "y": 0.0,
+        },
+      },
+    ],
+  ),
+  (
+    entity: 4,
+    components: [
+      {
+        "type": "FloorTile",
+        "map": {
+          "x": 96.0,
+          "y": 0.0,
+        },
+      },
+    ],
+  ),
+  (
+    entity: 5,
+    components: [
+      {
+        "type": "FloorTile",
+        "map": {
+          "x": 0.0,
+          "y": -24.0,
+        },
+      },
+    ],
+  ),
+  (
+    entity: 6,
+    components: [
+      {
+        "type": "FloorTile",
+        "map": {
+          "x": 24.0,
+          "y": -24.0,
+        },
+      },
+    ],
+  ),
+  (
+    entity: 7,
+    components: [
+      {
+        "type": "FloorTile",
+        "map": {
+          "x": 48.0,
+          "y": -24.0,
+        },
+      },
+    ],
+  ),
+  (
+    entity: 8,
+    components: [
+      {
+        "type": "FloorTile",
+        "map": {
+          "x": 72.0,
+          "y": -24.0,
+        },
+      },
+    ],
+  ),
+  (
+    entity: 9,
+    components: [
+      {
+        "type": "FloorTile",
+        "map": {
+          "x": 96.0,
+          "y": -24.0,
+        },
+      },
+    ],
+  ),
+  (
+    entity: 10,
+    components: [
+      {
+        "type": "FloorTile",
+        "map": {
+          "x": 0.0,
+          "y": -48.0,
+        },
+      },
+    ],
+  ),
+  (
+    entity: 11,
+    components: [
+      {
+        "type": "FloorTile",
+        "map": {
+          "x": 24.0,
+          "y": -48.0,
+        },
+      },
+    ],
+  ),
+  (
+    entity: 12,
+    components: [
+      {
+        "type": "FloorTile",
+        "map": {
+          "x": 48.0,
+          "y": -48.0,
+        },
+      },
+    ],
+  ),
+  (
+    entity: 13,
+    components: [
+      {
+        "type": "FloorTile",
+        "map": {
+          "x": 72.0,
+          "y": -48.0,
+        },
+      },
+    ],
+  ),
+  (
+    entity: 14,
+    components: [
+      {
+        "type": "FloorTile",
+        "map": {
+          "x": 96.0,
+          "y": -48.0,
+        },
+      },
+    ],
+  ),
+]
