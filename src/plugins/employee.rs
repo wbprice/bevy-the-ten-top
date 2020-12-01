@@ -50,18 +50,24 @@ fn animate_sprite_system(
     texture_atlases: Res<Assets<TextureAtlas>>,
     mut query: Query<(
         &Velocity,
+        &mut Transform,
         &mut Timer,
         &mut TextureAtlasSprite,
         &Handle<TextureAtlas>,
     )>,
 ) {
-    for (velocity, timer, mut sprite, texture_atlas_handle) in query.iter_mut() {
+    for (velocity, mut transform, timer, mut sprite, texture_atlas_handle) in query.iter_mut() {
         if timer.finished {
             if velocity.1.abs() > 0.0 {
                 let texture_atlas = texture_atlases.get(texture_atlas_handle).unwrap();
                 sprite.index = ((sprite.index as usize + 1) % texture_atlas.textures.len()) as u32;
             } else {
                 sprite.index = 0;
+            }
+            if velocity.0 < 0.0 {
+                transform.scale = Vec3::new(-3.0, 3.0, 1.0);
+            } else {
+                transform.scale = Vec3::new(3.0, 3.0, 1.0);
             }
         }
     }
@@ -72,12 +78,6 @@ fn move_employees(time: Res<Time>, mut query: Query<(&Employee, &mut Transform, 
         let translation = &mut transform.translation;
         *translation.x_mut() += time.delta_seconds * velocity.0;
         *translation.y_mut() += time.delta_seconds * velocity.1;
-
-        if velocity.0 < 0.0 {
-            transform.scale = Vec3::new(-3.0, 3.0, 1.0);
-        } else {
-            transform.scale = Vec3::new(3.0, 3.0, 1.0);
-        }
     }
 }
 
