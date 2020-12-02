@@ -5,6 +5,7 @@ pub struct ScenePlugin;
 impl Plugin for ScenePlugin {
     fn build(&self, app: &mut AppBuilder) {
         app.register_component::<FloorTile>()
+            .register_component::<CashRegister>()
             .add_startup_system(setup.system())
             .add_system(render_kitchen.system());
     }
@@ -14,6 +15,14 @@ impl Plugin for ScenePlugin {
 struct FloorTile {
     x: f32,
     y: f32,
+    z: f32,
+}
+
+#[derive(Properties, Default)]
+struct CashRegister {
+    x: f32,
+    y: f32,
+    z: f32,
 }
 
 fn setup(
@@ -38,13 +47,14 @@ fn render_kitchen(
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     query: Query<(Entity, Changed<FloorTile>)>,
+    register_query: Query<(Entity, Changed<CashRegister>)>,
 ) {
     for (index, (_entity, tile)) in query.iter().enumerate() {
         let texture_handle = asset_server.load("sprites/floor-tiles.png");
         let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(24.0, 24.0), 2, 1);
         let texture_atlas_handle = texture_atlases.add(texture_atlas);
 
-        let mut transform = Transform::from_translation(Vec3::new(tile.x, tile.y, 0.0));
+        let mut transform = Transform::from_translation(Vec3::new(tile.x, tile.y, tile.z));
         transform.scale = Vec3::splat(1.0);
 
         commands
@@ -60,6 +70,32 @@ fn render_kitchen(
             .with(FloorTile {
                 x: tile.x,
                 y: tile.y,
+                z: tile.z,
+            });
+    }
+
+    for (_entity, register) in register_query.iter() {
+        let texture_handle = asset_server.load("sprites/floor-tiles.png");
+        let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(24.0, 24.0), 2, 1);
+        let texture_atlas_handle = texture_atlases.add(texture_atlas);
+
+        let mut transform = Transform::from_translation(Vec3::new(register.x, register.y, register.z));
+        transform.scale = Vec3::splat(1.0);
+
+        commands
+            .spawn(SpriteSheetComponents {
+                texture_atlas: texture_atlas_handle,
+                transform,
+                sprite: TextureAtlasSprite {
+                    index: 0,
+                    ..Default::default()
+                },
+                ..Default::default()
+            })
+            .with(CashRegister {
+                x: register.x,
+                y: register.y,
+                z: register.z,
             });
     }
 }
