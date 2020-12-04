@@ -7,7 +7,7 @@
         "map": {
           "x": 0.0,
           "y": 0.0,
-          "z": 0.0,
+          "z": 0.0
         },
       },
     ],
@@ -20,7 +20,7 @@
         "map": {
           "x": 24.0,
           "y": 0.0,
-          "z": 0.0,
+          "z": 0.0
         },
       },
     ],
@@ -33,7 +33,7 @@
         "map": {
           "x": 48.0,
           "y": 0.0,
-          "z": 0.0,
+          "z": 0.0
         },
       },
     ],
@@ -46,7 +46,7 @@
         "map": {
           "x": 72.0,
           "y": 0.0,
-          "z": 0.0,
+          "z": 0.0
         },
       },
     ],
@@ -59,152 +59,9 @@
         "map": {
           "x": 96.0,
           "y": 0.0,
-          "z": 0.0,
+          "z": 0.0
         },
       },
     ],
   ),
-  (
-    entity: 5,
-    components: [
-      {
-        "type": "FloorTile",
-        "map": {
-          "x": 0.0,
-          "y": -24.0,
-          "z": 0.0,
-        },
-      },
-    ],
-  ),
-  (
-    entity: 6,
-    components: [
-      {
-        "type": "FloorTile",
-        "map": {
-          "x": 24.0,
-          "y": -24.0,
-          "z": 0.0,
-        },
-      },
-    ],
-  ),
-  (
-    entity: 7,
-    components: [
-      {
-        "type": "FloorTile",
-        "map": {
-          "x": 48.0,
-          "y": -24.0,
-          "z": 0.0,
-        },
-      },
-    ],
-  ),
-  (
-    entity: 8,
-    components: [
-      {
-        "type": "FloorTile",
-        "map": {
-          "x": 72.0,
-          "y": -24.0,
-          "z": 0.0,
-        },
-      },
-    ],
-  ),
-  (
-    entity: 9,
-    components: [
-      {
-        "type": "FloorTile",
-        "map": {
-          "x": 96.0,
-          "y": -24.0,
-          "z": 0.0,
-        },
-      },
-    ],
-  ),
-  (
-    entity: 10,
-    components: [
-      {
-        "type": "FloorTile",
-        "map": {
-          "x": 0.0,
-          "y": -48.0,
-          "z": 0.0,
-        },
-      },
-    ],
-  ),
-  (
-    entity: 11,
-    components: [
-      {
-        "type": "FloorTile",
-        "map": {
-          "x": 24.0,
-          "y": -48.0,
-          "z": 0.0,
-        },
-      },
-    ],
-  ),
-  (
-    entity: 12,
-    components: [
-      {
-        "type": "FloorTile",
-        "map": {
-          "x": 48.0,
-          "y": -48.0,
-          "z": 0.0,
-        },
-      },
-    ],
-  ),
-  (
-    entity: 13,
-    components: [
-      {
-        "type": "FloorTile",
-        "map": {
-          "x": 72.0,
-          "y": -48.0,
-          "z": 0.0,
-        },
-      },
-    ],
-  ),
-  (
-    entity: 14,
-    components: [
-      {
-        "type": "FloorTile",
-        "map": {
-          "x": 96.0,
-          "y": -48.0,
-          "z": 0.0,
-        },
-      },
-    ],
-  ),
-  (
-    entity: 15,
-    components: [
-      {
-        "type": "CashRegister",
-        "map": {
-          "x": 96.0,
-          "y": 0.0",
-          "z": 1.0",
-        }
-      }
-    ]
-  )
 ]
