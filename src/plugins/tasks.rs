@@ -60,9 +60,9 @@ impl Plugin for TasksPlugin {
 }
 
 fn goto(
-    mut commands: Commands,
+    commands: &mut Commands,
     mut query: Query<(Entity, &Employee, &mut Task)>,
-    mut dest_query: Query<Without<Destination, (Entity, &Employee)>>,
+    mut dest_query: Query<(Entity, &Employee), Without<Task>>,
 ) {
     // Find employees with a GoTo step to take
     for (entity, _employee, mut task) in query.iter_mut() {
@@ -97,7 +97,7 @@ fn goto(
 }
 
 fn goto_dish(
-    mut commands: Commands,
+    commands: &mut Commands,
     mut query: Query<(Entity, &Employee, &mut Task, &Transform)>,
     mut dish_query: Query<(Entity, &Dish, &mut Transform)>,
 ) {

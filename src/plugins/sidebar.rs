@@ -9,13 +9,13 @@ impl Plugin for SidebarPlugin {
 }
 
 fn setup(
-    mut commands: Commands,
+    commands: &mut Commands,
     mut materials: ResMut<Assets<ColorMaterial>>,
     asset_server: Res<AssetServer>,
 ) {
     commands
-        .spawn(UiCameraComponents::default())
-        .spawn(NodeComponents {
+        .spawn(CameraUiBundle::default())
+        .spawn(NodeBundle {
             style: Style {
                 size: Size::new(Val::Px(200.0), Val::Percent(100.0)),
                 position_type: PositionType::Absolute,
@@ -31,7 +31,7 @@ fn setup(
         })
         .with_children(|parent| {
             parent
-                .spawn(NodeComponents {
+                .spawn(NodeBundle {
                     style: Style {
                         size: Size::new(Val::Px(176.0), Val::Percent(100.0)),
                         position_type: PositionType::Relative,
@@ -48,13 +48,14 @@ fn setup(
                     ..Default::default()
                 })
                 .with_children(|parent| {
-                    parent.spawn(TextComponents {
+                    parent.spawn(TextBundle {
                         text: Text {
                             value: "The Ten Top".to_string(),
                             font: asset_server.load("fonts/04B_03__.ttf"),
                             style: TextStyle {
                                 font_size: 24.0,
                                 color: Color::BLACK,
+                                ..Default::default()
                             },
                         },
                         ..Default::default()

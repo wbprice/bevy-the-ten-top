@@ -4,23 +4,20 @@ pub struct ScenePlugin;
 
 impl Plugin for ScenePlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.register_component::<FloorTile>()
+        app.register_type::<FloorTile>()
             .add_startup_system(setup.system())
             .add_system(render_kitchen.system());
     }
 }
 
-#[derive(Properties, Default)]
+#[derive(Reflect, Default)]
+#[reflect(Component)]
 struct FloorTile {
     x: f32,
     y: f32,
 }
 
-fn setup(
-    _commands: Commands,
-    asset_server: Res<AssetServer>,
-    mut scene_spawner: ResMut<SceneSpawner>,
-) {
+fn setup(asset_server: Res<AssetServer>, mut scene_spawner: ResMut<SceneSpawner>) {
     // Scenes are loaded just like any other asset.
     let scene_handle: Handle<DynamicScene> = asset_server.load("scenes/kitchen.scn");
 
@@ -34,10 +31,10 @@ fn setup(
 }
 
 fn render_kitchen(
-    mut commands: Commands,
+    commands: &mut Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
-    query: Query<(Entity, Changed<FloorTile>)>,
+    query: Query<(&Entity, &FloorTile), Changed<FloorTile>>,
 ) {
     for (index, (_entity, tile)) in query.iter().enumerate() {
         let texture_handle = asset_server.load("sprites/floor-tiles.png");
@@ -48,7 +45,7 @@ fn render_kitchen(
         transform.scale = Vec3::splat(1.0);
 
         commands
-            .spawn(SpriteSheetComponents {
+            .spawn(SpriteSheetBundle {
                 texture_atlas: texture_atlas_handle,
                 transform,
                 sprite: TextureAtlasSprite {
