@@ -15,7 +15,7 @@ impl Plugin for DishPlugin {
 }
 
 fn setup(
-    mut commands: Commands,
+    commands: &mut Commands,
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
@@ -24,7 +24,7 @@ fn setup(
     transform.scale = Vec3::splat(6.0);
 
     commands
-        .spawn(SpriteComponents {
+        .spawn(SpriteBundle {
             material: materials.add(texture_handle.into()),
             transform,
             ..Default::default()

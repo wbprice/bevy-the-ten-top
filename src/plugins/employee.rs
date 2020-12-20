@@ -4,16 +4,21 @@ use bevy::prelude::*;
 pub struct EmployeePlugin;
 
 struct Velocity(f32, f32);
+
 #[derive(Debug)]
 pub struct Employee {
     name: String,
 }
+
+struct EmployeeAnimationTimer(Timer);
+
 #[derive(Copy, Clone)]
 pub struct Destination(pub Vec3);
 
 impl Plugin for EmployeePlugin {
     fn build(&self, app: &mut AppBuilder) {
         app.add_startup_system(setup.system())
+            .add_resource(EmployeeAnimationTimer(Timer::from_seconds(0.1, true)))
             .add_system(animate_sprite_system.system())
             .add_system(move_employees.system())
             .add_system(move_to_destination.system());
@@ -21,7 +26,7 @@ impl Plugin for EmployeePlugin {
 }
 
 fn setup(
-    mut commands: Commands,
+    commands: &mut Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
@@ -32,8 +37,8 @@ fn setup(
     let mut transform = Transform::from_translation(Vec3::new(-215.0, 0.0, 0.0));
     transform.scale = Vec3::splat(3.0);
     commands
-        .spawn(Camera2dComponents::default())
-        .spawn(SpriteSheetComponents {
+        .spawn(Camera2dBundle::default())
+        .spawn(SpriteSheetBundle {
             texture_atlas: texture_atlas_handle,
             transform,
             ..Default::default()
@@ -42,33 +47,35 @@ fn setup(
             name: "Gerald".to_string(),
         })
         .with(Velocity(0.0, 0.0))
-        .with(Task::new(Tasks::FindDish(DishType::HotDog)))
-        .with(Timer::from_seconds(0.1, true));
+        .with(Task::new(Tasks::FindDish(DishType::HotDog)));
 }
 
 fn animate_sprite_system(
     texture_atlases: Res<Assets<TextureAtlas>>,
+    time: Res<Time>,
+    mut timer: ResMut<EmployeeAnimationTimer>,
     mut query: Query<(
         &Velocity,
         &mut Transform,
-        &mut Timer,
         &mut TextureAtlasSprite,
         &Handle<TextureAtlas>,
     )>,
 ) {
-    for (velocity, mut transform, timer, mut sprite, texture_atlas_handle) in query.iter_mut() {
-        if timer.finished {
-            if velocity.1.abs() > 0.0 {
-                let texture_atlas = texture_atlases.get(texture_atlas_handle).unwrap();
-                sprite.index = ((sprite.index as usize + 1) % texture_atlas.textures.len()) as u32;
-            } else {
-                sprite.index = 0;
-            }
-            if velocity.0 < 0.0 {
-                transform.scale = Vec3::new(-3.0, 3.0, 1.0);
-            } else {
-                transform.scale = Vec3::new(3.0, 3.0, 1.0);
-            }
+    for (velocity, mut transform, mut sprite, texture_atlas_handle) in query.iter_mut() {
+        if !timer.0.tick(time.delta_seconds()).just_finished() {
+            return;
+        }
+
+        if velocity.1.abs() > 0.0 {
+            let texture_atlas = texture_atlases.get(texture_atlas_handle).unwrap();
+            sprite.index = ((sprite.index as usize + 1) % texture_atlas.textures.len()) as u32;
+        } else {
+            sprite.index = 0;
+        }
+        if velocity.0 < 0.0 {
+            transform.scale = Vec3::new(-3.0, 3.0, 1.0);
+        } else {
+            transform.scale = Vec3::new(3.0, 3.0, 1.0);
         }
     }
 }
@@ -76,13 +83,13 @@ fn animate_sprite_system(
 fn move_employees(time: Res<Time>, mut query: Query<(&Employee, &mut Transform, &Velocity)>) {
     for (_employee, mut transform, velocity) in query.iter_mut() {
         let translation = &mut transform.translation;
-        *translation.x_mut() += time.delta_seconds * velocity.0;
-        *translation.y_mut() += time.delta_seconds * velocity.1;
+        translation.x += time.delta_seconds() * velocity.0;
+        translation.y += time.delta_seconds() * velocity.1;
     }
 }
 
 fn move_to_destination(
-    mut commands: Commands,
+    commands: &mut Commands,
     mut query: Query<(Entity, &Transform, &mut Velocity, &Destination)>,
 ) {
     for (entity, transform, mut velocity, destination) in query.iter_mut() {
@@ -97,7 +104,7 @@ fn move_to_destination(
             velocity.0 = 0.0;
             velocity.1 = 0.0;
         } else {
-            let heading = (difference.y()).atan2(difference.x()) * 180.0 / 3.14;
+            let heading = (difference.y.atan2(difference.x)) * 180.0 / 3.14;
             velocity.0 = 50.0 * heading.cos();
             velocity.1 = 50.0 * heading.sin();
         }
