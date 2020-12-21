@@ -1,4 +1,7 @@
 use bevy::prelude::*;
+use crate::{
+    GameState, STAGE
+};
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum DishType {
@@ -10,7 +13,7 @@ pub struct DishPlugin;
 
 impl Plugin for DishPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_startup_system(setup.system());
+        app.on_state_enter(STAGE, GameState::Playing, setup.system());
     }
 }
 

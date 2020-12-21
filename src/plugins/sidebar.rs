@@ -1,10 +1,13 @@
 use bevy::prelude::*;
 
+use crate::{
+    GameState, STAGE
+};
 pub struct SidebarPlugin;
 
 impl Plugin for SidebarPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_startup_system(setup.system());
+        app.on_state_enter(STAGE, GameState::Playing, setup.system());
     }
 }
 

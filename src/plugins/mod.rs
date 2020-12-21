@@ -3,6 +3,7 @@ mod employee;
 mod scene;
 mod sidebar;
 mod tasks;
+mod title_screen;
 
 pub use self::{
     dish::{Dish, DishPlugin, DishType},
@@ -10,4 +11,5 @@ pub use self::{
     scene::ScenePlugin,
     sidebar::SidebarPlugin,
     tasks::{Task, Tasks, TasksPlugin},
+    title_screen::TitleScreenPlugin,
 };

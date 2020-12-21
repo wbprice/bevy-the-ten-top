@@ -1,4 +1,7 @@
-use crate::plugins::{DishType, Task, Tasks};
+use crate::{
+    GameState, STAGE,
+    plugins::{DishType, Task, Tasks}
+};
 use bevy::prelude::*;
 
 pub struct EmployeePlugin;
@@ -17,11 +20,12 @@ pub struct Destination(pub Vec3);
 
 impl Plugin for EmployeePlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_startup_system(setup.system())
+        app
             .add_resource(EmployeeAnimationTimer(Timer::from_seconds(0.1, true)))
-            .add_system(animate_sprite_system.system())
-            .add_system(move_employees.system())
-            .add_system(move_to_destination.system());
+            .on_state_enter(STAGE, GameState::Playing, setup.system())
+            .on_state_update(STAGE, GameState::Playing, animate_sprite_system.system())
+            .on_state_update(STAGE, GameState::Playing, move_employees.system())
+            .on_state_update(STAGE, GameState::Playing, move_to_destination.system());
     }
 }
 
