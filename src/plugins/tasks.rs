@@ -1,6 +1,9 @@
 use bevy::prelude::*;
 
-use crate::plugins::{Destination, Dish, DishType, Employee};
+use crate::{
+    plugins::{Destination, Dish, DishType, Employee},
+    GameState, STAGE,
+};
 
 pub struct Task {
     task: Tasks,
@@ -55,6 +58,8 @@ pub struct TasksPlugin;
 
 impl Plugin for TasksPlugin {
     fn build(&self, app: &mut AppBuilder) {
+        // app.on_state_enter(STAGE, GameState::Playing, goto.system())
+        //    .on_state_enter(STAGE, GameState::Playing, goto_dish.system());
         app.add_system(goto.system()).add_system(goto_dish.system());
     }
 }

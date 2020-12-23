@@ -2,14 +2,28 @@ use bevy::prelude::*;
 use bevy_window::WindowMode;
 
 mod plugins;
-use crate::plugins::{DishPlugin, EmployeePlugin, ScenePlugin, SidebarPlugin, TasksPlugin};
+use crate::plugins::{DishPlugin, EmployeePlugin, ScenePlugin, SidebarPlugin, TasksPlugin, TitleScreenPlugin};
 
 fn setup_camera(commands: &mut Commands) {
     commands.spawn(Camera2dBundle::default());
 }
 
+pub const STAGE: &str = "game_state";
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum GameState {
+    TitleScreen,
+    Playing,
+    // Paused
+}
+
 fn main() {
     App::build()
+        .add_resource(State::new(GameState::TitleScreen))
+        .add_stage_after(
+            stage::UPDATE,
+            STAGE,
+            StateStage::<GameState>::default(),
+        )
         .add_resource(WindowDescriptor {
             title: "The Ten Top".to_string(),
             width: 768.0,
@@ -25,6 +39,7 @@ fn main() {
         .add_plugin(DishPlugin)
         .add_plugin(TasksPlugin)
         //.add_plugin(ScenePlugin)
-        .add_plugin(SidebarPlugin)
+        //.add_plugin(SidebarPlugin)
+        .add_plugin(TitleScreenPlugin)
         .run();
 }
