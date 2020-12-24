@@ -1,6 +1,6 @@
 use crate::{
     plugins::{Destination, Velocity},
-    GameState, STAGE, SCREEN_HEIGHT, SCREEN_WIDTH
+    GameState, SCREEN_HEIGHT, SCREEN_WIDTH, STAGE,
 };
 use bevy::prelude::*;
 
@@ -96,7 +96,7 @@ fn warp_around(mut query: Query<(&Patron, &mut Transform)>) {
         } else if translation.x > RIGHT_BOUND {
             translation.x = LEFT_BOUND;
         }
-        
+
         if translation.y < BOTTOM_BOUND {
             translation.y = TOP_BOUND;
         } else if translation.y > TOP_BOUND {
