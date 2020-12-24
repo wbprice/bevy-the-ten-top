@@ -2,13 +2,16 @@ use bevy::prelude::*;
 use bevy_window::WindowMode;
 
 mod plugins;
-use crate::plugins::{DishPlugin, EmployeePlugin, ScenePlugin, SidebarPlugin, TasksPlugin, TitleScreenPlugin};
+use crate::plugins::{DishPlugin, EmployeePlugin, PatronPlugin, TasksPlugin, TitleScreenPlugin};
 
 fn setup_camera(commands: &mut Commands) {
     commands.spawn(Camera2dBundle::default());
 }
 
 pub const STAGE: &str = "game_state";
+pub const SCREEN_WIDTH: f32 = 768.0;
+pub const SCREEN_HEIGHT: f32 = 432.0;
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum GameState {
     TitleScreen,
@@ -19,15 +22,11 @@ pub enum GameState {
 fn main() {
     App::build()
         .add_resource(State::new(GameState::TitleScreen))
-        .add_stage_after(
-            stage::UPDATE,
-            STAGE,
-            StateStage::<GameState>::default(),
-        )
+        .add_stage_after(stage::UPDATE, STAGE, StateStage::<GameState>::default())
         .add_resource(WindowDescriptor {
             title: "The Ten Top".to_string(),
-            width: 768.0,
-            height: 432.0,
+            width: SCREEN_WIDTH,
+            height: SCREEN_HEIGHT,
             vsync: true,
             resizable: false,
             mode: WindowMode::Windowed,
@@ -36,10 +35,9 @@ fn main() {
         .add_startup_system(setup_camera.system())
         .add_plugins(DefaultPlugins)
         .add_plugin(EmployeePlugin)
+        .add_plugin(PatronPlugin)
         .add_plugin(DishPlugin)
         .add_plugin(TasksPlugin)
-        //.add_plugin(ScenePlugin)
-        //.add_plugin(SidebarPlugin)
         .add_plugin(TitleScreenPlugin)
         .run();
 }
