@@ -1,8 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{
-    GameState, STAGE
-};
+use crate::{GameState, STAGE};
 pub struct SidebarPlugin;
 
 impl Plugin for SidebarPlugin {

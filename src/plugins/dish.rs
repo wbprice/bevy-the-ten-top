@@ -1,7 +1,5 @@
+use crate::{GameState, STAGE};
 use bevy::prelude::*;
-use crate::{
-    GameState, STAGE
-};
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum DishType {

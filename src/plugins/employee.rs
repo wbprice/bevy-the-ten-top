@@ -1,12 +1,12 @@
 use crate::{
+    plugins::{DishType, Task, Tasks},
     GameState, STAGE,
-    plugins::{DishType, Task, Tasks}
 };
 use bevy::prelude::*;
 
 pub struct EmployeePlugin;
 
-struct Velocity(f32, f32);
+pub struct Velocity(pub f32, pub f32);
 
 #[derive(Debug)]
 pub struct Employee {
@@ -20,8 +20,7 @@ pub struct Destination(pub Vec3);
 
 impl Plugin for EmployeePlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app
-            .add_resource(EmployeeAnimationTimer(Timer::from_seconds(0.1, true)))
+        app.add_resource(EmployeeAnimationTimer(Timer::from_seconds(0.1, true)))
             .on_state_enter(STAGE, GameState::Playing, setup.system())
             .on_state_update(STAGE, GameState::Playing, animate_sprite_system.system())
             .on_state_update(STAGE, GameState::Playing, move_employees.system())
@@ -59,18 +58,19 @@ fn animate_sprite_system(
     time: Res<Time>,
     mut timer: ResMut<EmployeeAnimationTimer>,
     mut query: Query<(
+        &Employee,
         &Velocity,
         &mut Transform,
         &mut TextureAtlasSprite,
         &Handle<TextureAtlas>,
     )>,
 ) {
-    for (velocity, mut transform, mut sprite, texture_atlas_handle) in query.iter_mut() {
+    for (_employee, velocity, mut transform, mut sprite, texture_atlas_handle) in query.iter_mut() {
         if !timer.0.tick(time.delta_seconds()).just_finished() {
             return;
         }
 
-        if velocity.1.abs() > 0.0 {
+        if velocity.0.abs() > 0.0 {
             let texture_atlas = texture_atlases.get(texture_atlas_handle).unwrap();
             sprite.index = ((sprite.index as usize + 1) % texture_atlas.textures.len()) as u32;
         } else {

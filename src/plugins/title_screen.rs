@@ -1,6 +1,6 @@
 use bevy::{
+    input::{keyboard::KeyCode, Input},
     prelude::*,
-    input::{keyboard::KeyCode, Input}
 };
 
 use crate::{GameState, STAGE};
@@ -11,9 +11,12 @@ struct TitleData {
 
 impl Plugin for TitleScreenPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app
-            .on_state_enter(STAGE, GameState::TitleScreen, setup.system())
-            .on_state_update(STAGE, GameState::TitleScreen, keyboard_input_system.system())
+        app.on_state_enter(STAGE, GameState::TitleScreen, setup.system())
+            .on_state_update(
+                STAGE,
+                GameState::TitleScreen,
+                keyboard_input_system.system(),
+            )
             .on_state_exit(STAGE, GameState::TitleScreen, teardown.system());
     }
 }
@@ -80,7 +83,6 @@ fn setup(
         title_entity: commands.current_entity().unwrap(),
     });
 }
-
 
 fn keyboard_input_system(mut state: ResMut<State<GameState>>, keyboard_input: Res<Input<KeyCode>>) {
     if keyboard_input.just_pressed(KeyCode::Return) {
