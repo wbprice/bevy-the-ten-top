@@ -1,5 +1,5 @@
 use crate::{
-    plugins::{Destination, Velocity},
+    plugins::{Destination, DishType, Velocity},
     GameState, SCREEN_HEIGHT, SCREEN_WIDTH, STAGE,
 };
 use bevy::prelude::*;
@@ -13,16 +13,23 @@ pub struct PatronPlugin;
 pub struct Patron {
     name: String,
 }
+
+#[derive(Debug)]
+struct Fullness(f32);
+struct Craving(DishType);
+struct FullnessTimer(Timer);
 struct PatronAnimationTimer(Timer);
 
 impl Plugin for PatronPlugin {
     fn build(&self, app: &mut AppBuilder) {
         app.add_resource(PatronAnimationTimer(Timer::from_seconds(0.1, true)))
+            .add_resource(FullnessTimer(Timer::from_seconds(1.0, true)))
             .on_state_enter(STAGE, GameState::Playing, setup.system())
             .on_state_update(STAGE, GameState::Playing, animate_sprite_system.system())
             .on_state_update(STAGE, GameState::Playing, move_patrons.system())
             .on_state_update(STAGE, GameState::Playing, warp_around.system())
-            .on_state_update(STAGE, GameState::Playing, move_to_destination.system());
+            .on_state_update(STAGE, GameState::Playing, move_to_destination.system())
+            .on_state_update(STAGE, GameState::Playing, decrement_fullness.system());
     }
 }
 
@@ -46,6 +53,8 @@ fn setup(
         .with(Patron {
             name: "Susan".to_string(),
         })
+        .with(Craving(DishType::HotDog))
+        .with(Fullness(100.0))
         .with(Velocity(96.0, 0.0));
 }
 
@@ -125,5 +134,19 @@ fn move_to_destination(
             velocity.0 = 50.0 * heading.cos();
             velocity.1 = 50.0 * heading.sin();
         }
+    }
+}
+
+fn decrement_fullness(
+    time: Res<Time>,
+    mut timer: ResMut<FullnessTimer>,
+    mut query: Query<(Entity, &mut Fullness)>,
+) {
+    if !timer.0.tick(time.delta_seconds()).just_finished() {
+        return;
+    }
+
+    for (_entity, mut fullness) in query.iter_mut() {
+        fullness.0 -= 5.0;
     }
 }
