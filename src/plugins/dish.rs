@@ -1,7 +1,7 @@
 use crate::{GameState, STAGE};
 use bevy::prelude::*;
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub enum DishType {
     HotDog,
 }
