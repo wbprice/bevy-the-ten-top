@@ -2,7 +2,9 @@ use bevy::prelude::*;
 use bevy_window::WindowMode;
 
 mod plugins;
-use crate::plugins::{DishPlugin, EmployeePlugin, PatronPlugin, TasksPlugin, TitleScreenPlugin};
+use crate::plugins::{
+    CashRegisterPlugin, DishPlugin, EmployeePlugin, PatronPlugin, TasksPlugin, TitleScreenPlugin,
+};
 
 fn setup_camera(commands: &mut Commands) {
     commands.spawn(Camera2dBundle::default());
@@ -39,5 +41,6 @@ fn main() {
         .add_plugin(DishPlugin)
         .add_plugin(TasksPlugin)
         .add_plugin(TitleScreenPlugin)
+        .add_plugin(CashRegisterPlugin)
         .run();
 }

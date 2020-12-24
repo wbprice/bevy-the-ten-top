@@ -15,8 +15,8 @@ pub struct Patron {
 }
 
 #[derive(Debug)]
-struct Fullness(f32);
-struct Craving(DishType);
+pub struct Fullness(pub f32);
+pub struct Craving(pub DishType);
 struct FullnessTimer(Timer);
 struct PatronAnimationTimer(Timer);
 
