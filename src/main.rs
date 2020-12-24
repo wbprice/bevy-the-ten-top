@@ -9,6 +9,9 @@ fn setup_camera(commands: &mut Commands) {
 }
 
 pub const STAGE: &str = "game_state";
+pub const SCREEN_WIDTH: f32 = 768.0;
+pub const SCREEN_HEIGHT: f32 = 432.0;
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum GameState {
     TitleScreen,
@@ -22,8 +25,8 @@ fn main() {
         .add_stage_after(stage::UPDATE, STAGE, StateStage::<GameState>::default())
         .add_resource(WindowDescriptor {
             title: "The Ten Top".to_string(),
-            width: 768.0,
-            height: 432.0,
+            width: SCREEN_WIDTH,
+            height: SCREEN_HEIGHT,
             vsync: true,
             resizable: false,
             mode: WindowMode::Windowed,
