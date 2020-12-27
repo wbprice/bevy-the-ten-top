@@ -5,10 +5,23 @@ use crate::{
     GameState, STAGE,
 };
 
+pub struct TasksPlugin;
+
+impl Plugin for TasksPlugin {
+    fn build(&self, app: &mut AppBuilder) {
+        app.add_resource(TasksQueue(vec![]))
+            .add_system(goto.system())
+            .add_system(goto_dish.system())
+            .add_system(assign_tasks.system());
+    }
+}
+
 pub struct Task {
     task: Tasks,
     steps: Vec<Step>,
 }
+
+pub struct TasksQueue(pub Vec<Task>);
 
 impl Task {
     pub fn new(task_type: Tasks) -> Task {
@@ -52,16 +65,6 @@ enum StepStatus {
     New,
     InProgress,
     Completed,
-}
-
-pub struct TasksPlugin;
-
-impl Plugin for TasksPlugin {
-    fn build(&self, app: &mut AppBuilder) {
-        // app.on_state_enter(STAGE, GameState::Playing, goto.system())
-        //    .on_state_enter(STAGE, GameState::Playing, goto_dish.system());
-        app.add_system(goto.system()).add_system(goto_dish.system());
-    }
 }
 
 fn goto(
@@ -141,6 +144,18 @@ fn goto_dish(
                     }
                 }
             }
+        }
+    }
+}
+
+fn assign_tasks(
+    commands: &mut Commands,
+    mut tasks: ResMut<TasksQueue>,
+    query: Query<(Entity, &Employee), Without<Task>>,
+) {
+    for (entity, _employee) in query.iter() {
+        if let Some(task) = tasks.0.pop() {
+            commands.insert_one(entity, task);
         }
     }
 }
