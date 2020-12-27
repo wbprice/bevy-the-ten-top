@@ -1,5 +1,5 @@
 use crate::{
-    plugins::{Destination, DishType, Velocity},
+    plugins::{Destination, DishType, Task, Tasks, TasksQueue, Velocity},
     GameState, SCREEN_HEIGHT, SCREEN_WIDTH, STAGE,
 };
 use bevy::prelude::*;
@@ -116,6 +116,7 @@ fn warp_around(mut query: Query<(&Patron, &mut Transform)>) {
 
 fn move_to_destination(
     commands: &mut Commands,
+    mut tasks: ResMut<TasksQueue>,
     mut query: Query<(Entity, &Transform, &mut Velocity, &Destination)>,
 ) {
     for (entity, transform, mut velocity, destination) in query.iter_mut() {
@@ -129,6 +130,9 @@ fn move_to_destination(
             commands.remove_one::<Destination>(entity);
             velocity.0 = 0.0;
             velocity.1 = 0.0;
+
+            // Hack! Make the order
+            tasks.0.push(Task::new(Tasks::FindDish(DishType::HotDog)));
         } else {
             let heading = (difference.y.atan2(difference.x)) * 180.0 / 3.14;
             velocity.0 = 50.0 * heading.cos();

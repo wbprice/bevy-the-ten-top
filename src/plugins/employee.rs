@@ -49,8 +49,7 @@ fn setup(
         .with(Employee {
             name: "Gerald".to_string(),
         })
-        .with(Velocity(0.0, 0.0))
-        .with(Task::new(Tasks::FindDish(DishType::HotDog)));
+        .with(Velocity(0.0, 0.0));
 }
 
 fn animate_sprite_system(

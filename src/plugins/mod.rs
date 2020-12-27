@@ -14,6 +14,6 @@ pub use self::{
     patron::{Craving, Fullness, Patron, PatronPlugin},
     scene::ScenePlugin,
     sidebar::SidebarPlugin,
-    tasks::{Task, Tasks, TasksPlugin},
+    tasks::{Task, Tasks, TasksPlugin, TasksQueue},
     title_screen::TitleScreenPlugin,
 };
