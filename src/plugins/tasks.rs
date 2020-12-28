@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    plugins::{Destination, Dish, DishType, Employee},
+    plugins::{Destination, Dish, DishType, Employee, Patron},
     GameState, STAGE,
 };
 
@@ -12,6 +12,8 @@ impl Plugin for TasksPlugin {
         app.add_resource(TasksQueue(vec![]))
             .add_system(goto.system())
             .add_system(goto_dish.system())
+            .add_system(goto_entity.system())
+            .add_system(give_to.system())
             .add_system(assign_tasks.system());
     }
 }
@@ -33,14 +35,22 @@ impl Task {
                     Step::new(Steps::GoTo(Destination(Vec3::new(-100.0, -100.0, 0.0)))),
                 ],
             },
+            Tasks::DeliverOrder(dish_type, entity) => Task {
+                task: task_type,
+                steps: vec![
+                    Step::new(Steps::PickupDishType(dish_type)),
+                    Step::new(Steps::GoToEntity(entity)),
+                    Step::new(Steps::GiveTo(entity)),
+                ],
+            },
         }
     }
 }
 
 pub enum Tasks {
     FindDish(DishType),
+    DeliverOrder(DishType, Entity),
 }
-
 struct Step {
     status: StepStatus,
     step: Steps,
@@ -57,7 +67,9 @@ impl Step {
 
 enum Steps {
     GoTo(Destination),
+    GoToEntity(Entity),
     PickupDishType(DishType),
+    GiveTo(Entity),
 }
 
 #[derive(Clone, Copy)]
@@ -65,6 +77,18 @@ enum StepStatus {
     New,
     InProgress,
     Completed,
+}
+
+fn assign_tasks(
+    commands: &mut Commands,
+    mut tasks: ResMut<TasksQueue>,
+    query: Query<(Entity, &Employee), Without<Task>>,
+) {
+    for (entity, _employee) in query.iter() {
+        if let Some(task) = tasks.0.pop() {
+            commands.insert_one(entity, task);
+        }
+    }
 }
 
 fn goto(
@@ -96,6 +120,28 @@ fn goto(
                     }
                     StepStatus::Completed => {
                         // Remove this step from the list, queueing up the next one.
+                        task.steps.remove(0);
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn give_to(commands: &mut Commands, mut query: Query<(Entity, &Employee, &Children, &mut Task)>) {
+    for (entity, employee, children, mut task) in query.iter_mut() {
+        if let Some(step) = task.steps.first_mut() {
+            if let Steps::GiveTo(owner) = step.step {
+                match step.status {
+                    StepStatus::New => {
+                        step.status = StepStatus::InProgress;
+                    }
+                    StepStatus::InProgress => {
+                        let item = children.first().unwrap();
+                        commands.push_children(owner, &[*item]);
+                        step.status = StepStatus::Completed;
+                    }
+                    StepStatus::Completed => {
                         task.steps.remove(0);
                     }
                 }
@@ -148,14 +194,41 @@ fn goto_dish(
     }
 }
 
-fn assign_tasks(
+fn goto_entity(
     commands: &mut Commands,
-    mut tasks: ResMut<TasksQueue>,
-    query: Query<(Entity, &Employee), Without<Task>>,
+    mut query: Query<(Entity, &Employee, &mut Task, &Transform)>,
+    mut patron_query: Query<(Entity, &Patron, &Transform)>,
 ) {
-    for (entity, _employee) in query.iter() {
-        if let Some(task) = tasks.0.pop() {
-            commands.insert_one(entity, task);
+    for (entity, _employee, mut task, transform) in query.iter_mut() {
+        if let Some(step) = task.steps.first_mut() {
+            if let Steps::GoToEntity(destination_entity) = step.step {
+                match step.status {
+                    StepStatus::New => {
+                        // Where is the entity?
+                        // Add a destination to the actor
+                        for (this_entity, _patron, transform) in patron_query.iter_mut() {
+                            if this_entity == destination_entity {
+                                let destination = transform.translation;
+                                commands.insert_one(entity, Destination(destination));
+                                step.status = StepStatus::InProgress;
+                            }
+                        }
+                    }
+                    StepStatus::InProgress => {
+                        // Is the person close enough to the destination?
+                        for (_patron_entity, _patron, patron_transform) in patron_query.iter_mut() {
+                            let distance =
+                                (patron_transform.translation - transform.translation).length();
+                            if distance < 32.0 {
+                                step.status = StepStatus::Completed;
+                            }
+                        }
+                    }
+                    StepStatus::Completed => {
+                        task.steps.remove(0);
+                    }
+                }
+            }
         }
     }
 }

@@ -117,9 +117,9 @@ fn warp_around(mut query: Query<(&Patron, &mut Transform)>) {
 fn move_to_destination(
     commands: &mut Commands,
     mut tasks: ResMut<TasksQueue>,
-    mut query: Query<(Entity, &Transform, &mut Velocity, &Destination)>,
+    mut query: Query<(Entity, &Patron, &Transform, &mut Velocity, &Destination)>,
 ) {
-    for (entity, transform, mut velocity, destination) in query.iter_mut() {
+    for (entity, _patron, transform, mut velocity, destination) in query.iter_mut() {
         let translation = transform.translation;
         // How close is the entity to the destination?
         let close_enough = 32.0;
@@ -132,7 +132,9 @@ fn move_to_destination(
             velocity.1 = 0.0;
 
             // Hack! Make the order
-            tasks.0.push(Task::new(Tasks::FindDish(DishType::HotDog)));
+            tasks
+                .0
+                .push(Task::new(Tasks::DeliverOrder(DishType::HotDog, entity)));
         } else {
             let heading = (difference.y.atan2(difference.x)) * 180.0 / 3.14;
             velocity.0 = 50.0 * heading.cos();
