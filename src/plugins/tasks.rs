@@ -1,9 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{
-    plugins::{Destination, Dish, DishType, Employee, Patron, Actor},
-    GameState, STAGE,
-};
+use crate::plugins::{Actor, Destination, Dish, DishType, Employee, Patron};
 
 pub struct TasksPlugin;
 
@@ -79,12 +76,13 @@ enum StepStatus {
     Completed,
 }
 
+// This takes a task off the stack and assigns it to an idle employee actor.
 fn assign_tasks(
     commands: &mut Commands,
     mut tasks: ResMut<TasksQueue>,
-    query: Query<(Entity, &Employee), Without<Task>>,
+    query: Query<(Entity, &Actor, &Employee), Without<Task>>,
 ) {
-    for (entity, _employee) in query.iter() {
+    for (entity, _actor, _employee) in query.iter() {
         if let Some(task) = tasks.0.pop() {
             commands.insert_one(entity, task);
         }

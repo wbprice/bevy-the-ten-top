@@ -1,3 +1,4 @@
+mod actor;
 mod cash_register;
 mod dish;
 mod employee;
@@ -6,16 +7,15 @@ mod scene;
 mod sidebar;
 mod tasks;
 mod title_screen;
-mod actor;
 
 pub use self::{
+    actor::{Actor, ActorPlugin, Velocity},
     cash_register::CashRegisterPlugin,
     dish::{Dish, DishPlugin, DishType},
-    employee::{Destination, Employee, EmployeePlugin, Velocity},
+    employee::{Destination, Employee, EmployeePlugin},
     patron::{Craving, Fullness, Patron, PatronPlugin},
     scene::ScenePlugin,
     sidebar::SidebarPlugin,
     tasks::{Task, Tasks, TasksPlugin, TasksQueue},
     title_screen::TitleScreenPlugin,
-    actor::Actor
 };
