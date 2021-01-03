@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::plugins::{Actor, Destination, Dish, DishType, Employee, Patron};
+use crate::plugins::{Actor, Destination, Dish, DishType, Employee};
 
 pub struct TasksPlugin;
 
@@ -25,13 +25,6 @@ pub struct TasksQueue(pub Vec<Task>);
 impl Task {
     pub fn new(task_type: Tasks) -> Task {
         match task_type {
-            Tasks::FindDish(dish_type) => Task {
-                task: task_type,
-                steps: vec![
-                    Step::new(Steps::PickupDishType(dish_type)),
-                    Step::new(Steps::GoTo(Destination(Vec3::new(-100.0, -100.0, 0.0)))),
-                ],
-            },
             Tasks::DeliverOrder(dish_type, entity) => Task {
                 task: task_type,
                 steps: vec![
@@ -40,13 +33,22 @@ impl Task {
                     Step::new(Steps::GiveTo(entity)),
                 ],
             },
+            Tasks::RequestOrder(dish_type, register) => Task {
+                task: task_type,
+                steps: vec![
+                    Step::new(Steps::GoToEntity(register)),
+                    Step::new(Steps::RequestDish(dish_type)),
+                    Step::new(Steps::WaitForDish(dish_type)),
+                    Step::new(Steps::Leave)
+                ],
+            },
         }
     }
 }
 
 pub enum Tasks {
-    FindDish(DishType),
     DeliverOrder(DishType, Entity),
+    RequestOrder(DishType, Entity),
 }
 struct Step {
     status: StepStatus,
@@ -66,7 +68,10 @@ enum Steps {
     GoTo(Destination),
     GoToEntity(Entity),
     PickupDishType(DishType),
+    RequestDish(DishType),
+    WaitForDish(DishType),
     GiveTo(Entity),
+    Leave,
 }
 
 #[derive(Clone, Copy)]

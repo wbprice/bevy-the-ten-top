@@ -1,5 +1,5 @@
 use crate::{
-    plugins::{Craving, Destination, DishType, Fullness, Patron},
+    plugins::{Craving, Destination, DishType, Fullness, Patron, Task, Tasks},
     GameState, STAGE,
 };
 use bevy::prelude::*;
@@ -51,7 +51,7 @@ fn attract_patrons(
                 if (register_transform.translation - patron_transform.translation).length() < 256.0
                 {
                     if fullness.0 < 75.0 {
-                        commands.insert_one(patron, Destination(register_transform.translation));
+                        commands.insert_one(patron, Task::new(Tasks::RequestOrder(craving.0, register)));
                     }
                 }
             }
