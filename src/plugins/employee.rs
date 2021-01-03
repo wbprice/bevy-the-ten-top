@@ -1,17 +1,11 @@
-use crate::{
-    plugins::{DishType, Task, Tasks},
-    GameState, STAGE,
-};
+use crate::{plugins::Actor, GameState, STAGE};
 use bevy::prelude::*;
 
 pub struct EmployeePlugin;
 
 pub struct Velocity(pub f32, pub f32);
 
-#[derive(Debug)]
-pub struct Employee {
-    name: String,
-}
+pub struct Employee;
 
 struct EmployeeAnimationTimer(Timer);
 
@@ -46,9 +40,10 @@ fn setup(
             transform,
             ..Default::default()
         })
-        .with(Employee {
+        .with(Actor {
             name: "Gerald".to_string(),
         })
+        .with(Employee {})
         .with(Velocity(0.0, 0.0));
 }
 

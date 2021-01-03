@@ -6,6 +6,7 @@ mod scene;
 mod sidebar;
 mod tasks;
 mod title_screen;
+mod actor;
 
 pub use self::{
     cash_register::CashRegisterPlugin,
@@ -16,4 +17,5 @@ pub use self::{
     sidebar::SidebarPlugin,
     tasks::{Task, Tasks, TasksPlugin, TasksQueue},
     title_screen::TitleScreenPlugin,
+    actor::Actor
 };

@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    plugins::{Destination, Dish, DishType, Employee, Patron},
+    plugins::{Destination, Dish, DishType, Employee, Patron, Actor},
     GameState, STAGE,
 };
 
@@ -128,8 +128,8 @@ fn goto(
     }
 }
 
-fn give_to(commands: &mut Commands, mut query: Query<(Entity, &Employee, &Children, &mut Task)>) {
-    for (entity, employee, children, mut task) in query.iter_mut() {
+fn give_to(commands: &mut Commands, mut query: Query<(Entity, &Actor, &Children, &mut Task)>) {
+    for (_entity, _actor, children, mut task) in query.iter_mut() {
         if let Some(step) = task.steps.first_mut() {
             if let Steps::GiveTo(owner) = step.step {
                 match step.status {
@@ -152,10 +152,10 @@ fn give_to(commands: &mut Commands, mut query: Query<(Entity, &Employee, &Childr
 
 fn goto_dish(
     commands: &mut Commands,
-    mut query: Query<(Entity, &Employee, &mut Task, &Transform)>,
+    mut query: Query<(Entity, &Actor, &mut Task, &Transform)>,
     mut dish_query: Query<(Entity, &Dish, &mut Transform)>,
 ) {
-    for (entity, _employee, mut task, transform) in query.iter_mut() {
+    for (entity, _actor, mut task, transform) in query.iter_mut() {
         if let Some(step) = task.steps.first_mut() {
             if let Steps::PickupDishType(dish_type) = step.step {
                 match step.status {
@@ -196,19 +196,19 @@ fn goto_dish(
 
 fn goto_entity(
     commands: &mut Commands,
-    mut query: Query<(Entity, &Employee, &mut Task, &Transform)>,
-    mut patron_query: Query<(Entity, &Patron, &Transform)>,
+    mut query: Query<(Entity, &Actor, &mut Task, &Transform)>,
+    destination_query: Query<(Entity, &Transform)>,
 ) {
-    for (entity, _employee, mut task, transform) in query.iter_mut() {
+    for (entity, _actor, mut task, transform) in query.iter_mut() {
         if let Some(step) = task.steps.first_mut() {
             if let Steps::GoToEntity(destination_entity) = step.step {
                 match step.status {
                     StepStatus::New => {
-                        // Where is the entity?
+                        // Where is the destination entity?
                         // Add a destination to the actor
-                        for (this_entity, _patron, transform) in patron_query.iter_mut() {
-                            if this_entity == destination_entity {
-                                let destination = transform.translation;
+                        for (dest_entity, dest_transform) in destination_query.iter() {
+                            if dest_entity == destination_entity {
+                                let destination = dest_transform.translation;
                                 commands.insert_one(entity, Destination(destination));
                                 step.status = StepStatus::InProgress;
                             }
@@ -216,9 +216,9 @@ fn goto_entity(
                     }
                     StepStatus::InProgress => {
                         // Is the person close enough to the destination?
-                        for (_patron_entity, _patron, patron_transform) in patron_query.iter_mut() {
+                        for (_entity, dest_transform) in destination_query.iter() {
                             let distance =
-                                (patron_transform.translation - transform.translation).length();
+                                (dest_transform.translation - transform.translation).length();
                             if distance < 32.0 {
                                 step.status = StepStatus::Completed;
                             }
