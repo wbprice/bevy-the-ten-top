@@ -37,5 +37,5 @@ fn setup(
             name: "Gerald".to_string(),
         })
         .with(Employee {})
-        .with(Velocity(1.0, 0.0));
+        .with(Velocity(0.0, 0.0));
 }

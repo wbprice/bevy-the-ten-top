@@ -43,13 +43,11 @@ fn animate_actor_sprites(
         &Handle<TextureAtlas>,
     )>,
 ) {
+    if !timer.0.tick(time.delta_seconds()).just_finished() {
+        return;
+    }
+
     for (_actor, velocity, mut transform, mut sprite, texture_atlas_handle) in query.iter_mut() {
-        if !timer.0.tick(time.delta_seconds()).just_finished() {
-            return;
-        }
-
-        dbg!(&velocity);
-
         if velocity.0.abs() > 0.0 {
             let texture_atlas = texture_atlases.get(texture_atlas_handle).unwrap();
             sprite.index = ((sprite.index as usize + 1) % texture_atlas.textures.len()) as u32;
