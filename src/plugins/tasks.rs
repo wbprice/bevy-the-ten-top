@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::plugins::{Actor, Destination, Dish, DishType, Employee};
+use crate::plugins::{Actor, Destination, Dish, DishType, Employee, Patron, Craving};
 
 pub struct TasksPlugin;
 
@@ -11,7 +11,10 @@ impl Plugin for TasksPlugin {
             .add_system(goto_dish.system())
             .add_system(goto_entity.system())
             .add_system(give_to.system())
-            .add_system(assign_tasks.system());
+            .add_system(assign_tasks.system())
+            .add_system(request_dish.system())
+            .add_system(wait_for_dish.system())
+            .add_system(leave.system());
     }
 }
 
@@ -92,6 +95,79 @@ fn assign_tasks(
             commands.insert_one(entity, task);
         }
     }
+}
+
+fn leave(
+    commands: &mut Commands,
+    mut query: Query<(Entity, &Patron, &mut Task)>
+) {
+    for (entity, patron, mut task) in query.iter_mut() {
+        if let Some(step) = task.steps.first_mut() {
+            match step.status {
+                StepStatus::New => {
+                    step.status = StepStatus::InProgress;
+                },
+                StepStatus::InProgress => {
+                    commands.insert_one(entity, Destination(Vec3::new(256.0, 256.0, 0.0)));
+                    step.status = StepStatus::Completed;
+                },
+                StepStatus::Completed => {
+                    task.steps.remove(0);
+                }
+            }
+        }
+    }
+}
+
+fn request_dish(
+    mut tasks: ResMut<TasksQueue>,
+    mut query: Query<(Entity, &Patron, &Craving, &mut Task)>,
+) {
+    for (entity, _patron, craving, mut task) in query.iter_mut() {
+        if let Some(step) = task.steps.first_mut() {
+            match step.status {
+                StepStatus::New => {
+                    step.status = StepStatus::InProgress;
+                },
+                StepStatus::InProgress => {
+                    tasks.0.push(Task::new(Tasks::DeliverOrder(craving.0, entity)));
+                    step.status = StepStatus::Completed;
+                },
+                StepStatus::Completed => {
+                    task.steps.remove(0);
+                }
+            }
+        }
+    }
+}
+
+fn wait_for_dish(
+    mut query: Query<(&Patron, &Craving, &Children, &mut Task)>,
+    dish_query: Query<(Entity, &Dish)>,
+) {
+    for (patron, craving, children, mut task) in query.iter_mut() {
+        if let Some(step) = task.steps.first_mut() {
+            match step.status {
+                StepStatus::New => {
+                    step.status = StepStatus::InProgress;
+                },
+                StepStatus::InProgress => {
+                    for child in children.iter() {
+                        for (entity, dish) in dish_query.iter() {
+                            if *child == entity {
+                                if dish.0 == craving.0 {
+                                    step.status = StepStatus::Completed;
+                                }
+                            }
+                        }
+                    }
+                },
+                StepStatus::Completed => {
+                    task.steps.remove(0);
+                }
+            }
+        }
+    } 
 }
 
 fn goto(
@@ -222,6 +298,7 @@ fn goto_entity(
                         for (_entity, dest_transform) in destination_query.iter() {
                             let distance =
                                 (dest_transform.translation - transform.translation).length();
+                            dbg!(distance);
                             if distance < 32.0 {
                                 step.status = StepStatus::Completed;
                             }
