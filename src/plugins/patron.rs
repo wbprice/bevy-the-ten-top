@@ -41,7 +41,7 @@ fn setup(
         })
         .with(Patron)
         .with(Craving(DishType::HotDog))
-        .with(Fullness(100.0))
+        .with(Fullness(50.0))
         .with(Velocity(96.0, 0.0));
 }
 

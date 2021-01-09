@@ -5,6 +5,7 @@ use crate::{
 
 use bevy::prelude::*;
 
+#[derive(Debug)]
 pub struct Actor {
     pub name: String,
 }

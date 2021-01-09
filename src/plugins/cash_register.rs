@@ -13,6 +13,7 @@ impl Plugin for CashRegisterPlugin {
 }
 
 pub struct CashRegister;
+struct Attracted; 
 pub struct Menu(Vec<DishType>);
 
 fn setup(
@@ -42,7 +43,7 @@ fn attract_patrons(
     register_query: Query<(Entity, &CashRegister, &Menu, &Transform)>,
     mut patron_query: Query<
         (Entity, &Patron, &Fullness, &Craving, &Transform),
-        Without<Destination>,
+        Without<Attracted>,
     >,
 ) {
     for (register, _register, menu, register_transform) in register_query.iter() {
@@ -52,6 +53,7 @@ fn attract_patrons(
                 {
                     if fullness.0 < 75.0 {
                         commands.insert_one(patron, Task::new(Tasks::RequestOrder(craving.0, register)));
+                        commands.insert_one(patron, Attracted);
                     }
                 }
             }
