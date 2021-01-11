@@ -1,7 +1,4 @@
-use crate::{
-    plugins::{Destination},
-    GameState, SCREEN_HEIGHT, SCREEN_WIDTH, STAGE,
-};
+use crate::{plugins::Destination, GameState, SCREEN_HEIGHT, SCREEN_WIDTH, STAGE};
 
 use bevy::prelude::*;
 

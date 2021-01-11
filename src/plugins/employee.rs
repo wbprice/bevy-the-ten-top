@@ -1,10 +1,12 @@
-use crate::{plugins::{Actor, Velocity}, GameState, STAGE};
+use crate::{
+    plugins::{Actor, Velocity},
+    GameState, STAGE,
+};
 use bevy::prelude::*;
 
 pub struct EmployeePlugin;
 
 pub struct Employee;
-
 
 #[derive(Copy, Clone)]
 pub struct Destination(pub Vec3);

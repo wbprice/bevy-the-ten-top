@@ -44,7 +44,7 @@ impl Task {
                     Step::new(Steps::GoToEntity(register)),
                     Step::new(Steps::RequestDish(dish_type)),
                     Step::new(Steps::WaitForDish(dish_type)),
-                    Step::new(Steps::Leave)
+                    Step::new(Steps::Leave),
                 ],
             },
         }
@@ -103,10 +103,7 @@ fn assign_tasks(
 }
 
 // This removes completed tasks from the actors who have them.
-fn remove_tasks(
-    commands: &mut Commands,
-    query: Query<(Entity, &Actor, &Task)>
-) {
+fn remove_tasks(commands: &mut Commands, query: Query<(Entity, &Actor, &Task)>) {
     for (entity, _actor, task) in query.iter() {
         // If all subtasks are completed, remove the task from the entity.ms
         if task.steps.len() == 0 {
@@ -115,21 +112,18 @@ fn remove_tasks(
     }
 }
 
-fn leave(
-    commands: &mut Commands,
-    mut query: Query<(Entity, &Patron, &mut Task)>
-) {
+fn leave(commands: &mut Commands, mut query: Query<(Entity, &Patron, &mut Task)>) {
     for (entity, _patron, mut task) in query.iter_mut() {
         if let Some(step) = task.steps.first_mut() {
             if let Steps::Leave = step.step {
                 match step.status {
                     StepStatus::New => {
                         step.status = StepStatus::InProgress;
-                    },
+                    }
                     StepStatus::InProgress => {
                         commands.insert_one(entity, Destination(Vec3::new(0.0, -256.0, 0.0)));
                         step.status = StepStatus::Completed;
-                    },
+                    }
                     StepStatus::Completed => {
                         task.steps.remove(0);
                     }
@@ -139,21 +133,20 @@ fn leave(
     }
 }
 
-fn request_dish(
-    mut tasks: ResMut<TasksQueue>,
-    mut query: Query<(Entity, &Patron, &mut Task)>,
-) {
+fn request_dish(mut tasks: ResMut<TasksQueue>, mut query: Query<(Entity, &Patron, &mut Task)>) {
     for (entity, _patron, mut task) in query.iter_mut() {
         if let Some(step) = task.steps.first_mut() {
             if let Steps::RequestDish(dish_type) = step.step {
                 match step.status {
                     StepStatus::New => {
                         step.status = StepStatus::InProgress;
-                    },
+                    }
                     StepStatus::InProgress => {
-                        tasks.0.push(Task::new(Tasks::DeliverOrder(dish_type, entity)));
+                        tasks
+                            .0
+                            .push(Task::new(Tasks::DeliverOrder(dish_type, entity)));
                         step.status = StepStatus::Completed;
-                    },
+                    }
                     StepStatus::Completed => {
                         task.steps.remove(0);
                     }
@@ -173,7 +166,7 @@ fn wait_for_dish(
                 match step.status {
                     StepStatus::New => {
                         step.status = StepStatus::InProgress;
-                    },
+                    }
                     StepStatus::InProgress => {
                         for child in children.iter() {
                             for (entity, dish) in dish_query.iter() {
@@ -184,14 +177,14 @@ fn wait_for_dish(
                                 }
                             }
                         }
-                    },
+                    }
                     StepStatus::Completed => {
                         task.steps.remove(0);
                     }
                 }
             }
         }
-    } 
+    }
 }
 
 fn give_to(commands: &mut Commands, mut query: Query<(Entity, &Actor, &Children, &mut Task)>) {
@@ -204,6 +197,9 @@ fn give_to(commands: &mut Commands, mut query: Query<(Entity, &Actor, &Children,
                     }
                     StepStatus::InProgress => {
                         let item = children.first().unwrap();
+                        let mut transform = Transform::from_translation(Vec3::new(6.0, -6.0, 1.0));
+                        transform.scale = Vec3::splat(1.0);
+                        commands.insert_one(*item, transform);
                         commands.push_children(owner, &[*item]);
                         step.status = StepStatus::Completed;
                     }
@@ -226,6 +222,9 @@ fn set_item_owner(commands: &mut Commands, mut query: Query<(Entity, &Actor, &mu
                     }
                     StepStatus::InProgress => {
                         commands.push_children(owner, &[item]);
+                        let mut transform = Transform::from_translation(Vec3::new(6.0, -6.0, 1.0));
+                        transform.scale = Vec3::splat(1.0);
+                        commands.insert_one(item, transform);
                         step.status = StepStatus::Completed;
                     }
                     StepStatus::Completed => {
@@ -248,16 +247,18 @@ fn find_dish(
                 match step.status {
                     StepStatus::New => {
                         step.status = StepStatus::InProgress;
-                    },
+                    }
                     StepStatus::InProgress => {
                         for (dish_entity, dish) in dish_query.iter() {
                             if dish.0 == dish_type {
-                                steps_to_insert.insert(0, Step::new(Steps::GoToEntity(dish_entity)));
-                                steps_to_insert.insert(0, Step::new(Steps::SetItemOwner(dish_entity, entity)));
+                                steps_to_insert
+                                    .insert(0, Step::new(Steps::GoToEntity(dish_entity)));
+                                steps_to_insert
+                                    .insert(0, Step::new(Steps::SetItemOwner(dish_entity, entity)));
                                 step.status = StepStatus::Completed;
                             }
                         }
-                    },
+                    }
                     StepStatus::Completed => {
                         task.steps.remove(0);
                     }
@@ -285,7 +286,8 @@ fn goto_entity(
                         // Add a destination to the actor
                         for (dest_entity, dest_transform) in destination_query.iter() {
                             if goto_entity == dest_entity {
-                                commands.insert_one(entity, Destination(dest_transform.translation));
+                                commands
+                                    .insert_one(entity, Destination(dest_transform.translation));
                                 step.status = StepStatus::InProgress;
                             }
                         }
@@ -294,7 +296,12 @@ fn goto_entity(
                         // Is the person close enough to the destination?
                         for (this_entity, _actor, destination, transform) in actor_query.iter() {
                             if this_entity == entity {
-                                if destination.0.truncate().distance(transform.translation.truncate()) < 48.0 {
+                                if destination
+                                    .0
+                                    .truncate()
+                                    .distance(transform.translation.truncate())
+                                    < 48.0
+                                {
                                     step.status = StepStatus::Completed;
                                 }
                             }
