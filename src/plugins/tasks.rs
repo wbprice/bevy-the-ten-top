@@ -34,8 +34,8 @@ impl Task {
                 task: task_type,
                 steps: vec![
                     Step::new(Steps::FindDish(dish_type)),
-                    // Step::new(Steps::GoToEntity(entity)),
-                    // Step::new(Steps::GiveTo(entity)),
+                    Step::new(Steps::GoToEntity(entity)),
+                    Step::new(Steps::GiveTo(entity)),
                 ],
             },
             Tasks::RequestOrder(dish_type, register) => Task {
@@ -127,7 +127,7 @@ fn leave(
                         step.status = StepStatus::InProgress;
                     },
                     StepStatus::InProgress => {
-                        commands.insert_one(entity, Destination(Vec3::new(256.0, 256.0, 0.0)));
+                        commands.insert_one(entity, Destination(Vec3::new(0.0, -256.0, 0.0)));
                         step.status = StepStatus::Completed;
                     },
                     StepStatus::Completed => {
@@ -252,8 +252,8 @@ fn find_dish(
                     StepStatus::InProgress => {
                         for (dish_entity, dish) in dish_query.iter() {
                             if dish.0 == dish_type {
-                                steps_to_insert.push(Step::new(Steps::GoToEntity(dish_entity)));
-                                steps_to_insert.push(Step::new(Steps::SetItemOwner(dish_entity, entity)));
+                                steps_to_insert.insert(0, Step::new(Steps::GoToEntity(dish_entity)));
+                                steps_to_insert.insert(0, Step::new(Steps::SetItemOwner(dish_entity, entity)));
                                 step.status = StepStatus::Completed;
                             }
                         }
@@ -292,12 +292,11 @@ fn goto_entity(
                     }
                     StepStatus::InProgress => {
                         // Is the person close enough to the destination?
-                        for (_entity, _actor, destination, transform) in actor_query.iter() {
-                            if destination.0.truncate().distance(transform.translation.truncate()) < 48.0 {
-                                dbg!(transform.translation);
-                                dbg!(destination.0);
-                                dbg!("Done walking");
-                                step.status = StepStatus::Completed;
+                        for (this_entity, _actor, destination, transform) in actor_query.iter() {
+                            if this_entity == entity {
+                                if destination.0.truncate().distance(transform.translation.truncate()) < 48.0 {
+                                    step.status = StepStatus::Completed;
+                                }
                             }
                         }
                     }
