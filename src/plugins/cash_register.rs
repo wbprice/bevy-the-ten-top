@@ -1,5 +1,5 @@
 use crate::{
-    plugins::{Craving, Destination, DishType, Fullness, Patron},
+    plugins::{Craving, Destination, DishType, Fullness, Patron, Task, Tasks},
     GameState, STAGE,
 };
 use bevy::prelude::*;
@@ -13,6 +13,7 @@ impl Plugin for CashRegisterPlugin {
 }
 
 pub struct CashRegister;
+struct Attracted;
 pub struct Menu(Vec<DishType>);
 
 fn setup(
@@ -40,10 +41,7 @@ fn setup(
 fn attract_patrons(
     commands: &mut Commands,
     register_query: Query<(Entity, &CashRegister, &Menu, &Transform)>,
-    mut patron_query: Query<
-        (Entity, &Patron, &Fullness, &Craving, &Transform),
-        Without<Destination>,
-    >,
+    mut patron_query: Query<(Entity, &Patron, &Fullness, &Craving, &Transform), Without<Attracted>>,
 ) {
     for (register, _register, menu, register_transform) in register_query.iter() {
         for (patron, _patron, fullness, craving, patron_transform) in patron_query.iter_mut() {
@@ -51,7 +49,11 @@ fn attract_patrons(
                 if (register_transform.translation - patron_transform.translation).length() < 256.0
                 {
                     if fullness.0 < 75.0 {
-                        commands.insert_one(patron, Destination(register_transform.translation));
+                        commands.insert_one(
+                            patron,
+                            Task::new(Tasks::RequestOrder(craving.0, register)),
+                        );
+                        commands.insert_one(patron, Attracted);
                     }
                 }
             }
