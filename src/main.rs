@@ -3,8 +3,8 @@ use bevy_window::WindowMode;
 
 mod plugins;
 use crate::plugins::{
-    ActorPlugin, CashRegisterPlugin, DishPlugin, EmployeePlugin, PatronPlugin, TasksPlugin,
-    TitleScreenPlugin,
+    ActorPlugin, CashRegisterPlugin, DishPlugin, EmployeePlugin, MousePlugin, PatronPlugin,
+    TasksPlugin, TitleScreenPlugin,
 };
 
 fn setup_camera(commands: &mut Commands) {
@@ -44,5 +44,6 @@ fn main() {
         .add_plugin(TitleScreenPlugin)
         .add_plugin(CashRegisterPlugin)
         .add_plugin(ActorPlugin)
+        .add_plugin(MousePlugin)
         .run();
 }
