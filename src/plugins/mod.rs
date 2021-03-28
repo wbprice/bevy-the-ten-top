@@ -21,5 +21,5 @@ pub use self::{
     sidebar::SidebarPlugin,
     tasks::{Task, Tasks, TasksPlugin, TasksQueue},
     title_screen::TitleScreenPlugin,
-    building::BuildingPlugin,
+    building::{BuildingPlugin, Building, BuildingType, BuildingQueue}
 };

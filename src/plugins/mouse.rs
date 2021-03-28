@@ -5,7 +5,10 @@ use bevy::{
     window::CursorMoved,
 };
 
-use crate::{GameState, STAGE, X_SCREEN_OFFSET, Y_SCREEN_OFFSET};
+use crate::{
+    plugins::{Building, BuildingQueue, BuildingType},
+    GameState, STAGE, X_SCREEN_OFFSET, Y_SCREEN_OFFSET,
+};
 
 pub struct MousePlugin;
 pub struct MouseTile;
@@ -53,6 +56,7 @@ fn follow_mouse(
     cursor_moved_events: Res<Events<CursorMoved>>,
     commands: &mut Commands,
     mut query: Query<(&MouseTile, &mut Transform)>,
+    mut building_queue: ResMut<BuildingQueue>,
 ) {
     for event in state.cursor_moved_event_reader.iter(&cursor_moved_events) {
         for (_mouse_tile, mut transform) in query.iter_mut() {
@@ -74,9 +78,9 @@ fn follow_mouse(
                 match event.button {
                     MouseButton::Left => match event.state {
                         ElementState::Pressed => {
-                            dbg!(event);
-                            dbg!(x_pos);
-                            dbg!(y_pos);
+                            building_queue
+                                .0
+                                .push((Building { x: x_pos, y: y_pos }, BuildingType::Wall));
                         }
                         _ => {}
                     },
