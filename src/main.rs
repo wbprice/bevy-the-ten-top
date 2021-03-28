@@ -4,7 +4,7 @@ use bevy_window::WindowMode;
 mod plugins;
 use crate::plugins::{
     ActorPlugin, CashRegisterPlugin, DishPlugin, EmployeePlugin, MousePlugin, PatronPlugin,
-    TasksPlugin, TitleScreenPlugin,
+    TasksPlugin, TitleScreenPlugin, BuildingPlugin
 };
 
 fn setup_camera(commands: &mut Commands) {
@@ -14,6 +14,8 @@ fn setup_camera(commands: &mut Commands) {
 pub const STAGE: &str = "game_state";
 pub const SCREEN_WIDTH: f32 = 768.0;
 pub const SCREEN_HEIGHT: f32 = 432.0;
+pub const X_SCREEN_OFFSET: f32 = SCREEN_WIDTH / 2.0;
+pub const Y_SCREEN_OFFSET: f32 = SCREEN_HEIGHT / 2.0;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum GameState {
@@ -45,5 +47,6 @@ fn main() {
         .add_plugin(CashRegisterPlugin)
         .add_plugin(ActorPlugin)
         .add_plugin(MousePlugin)
+        .add_plugin(BuildingPlugin)
         .run();
 }

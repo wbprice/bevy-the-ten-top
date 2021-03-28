@@ -5,10 +5,7 @@ use bevy::{
     window::CursorMoved,
 };
 
-use crate::{GameState, SCREEN_HEIGHT, SCREEN_WIDTH, STAGE};
-
-const X_OFFSET: f32 = SCREEN_WIDTH / 2.0;
-const Y_OFFSET: f32 = SCREEN_HEIGHT / 2.0;
+use crate::{GameState, STAGE, X_SCREEN_OFFSET, Y_SCREEN_OFFSET};
 
 pub struct MousePlugin;
 pub struct MouseTile;
@@ -64,8 +61,8 @@ fn follow_mouse(
             // The origin for transform is relative to the center of the screen
 
             // The cursor should snap in 48 x 48 chunks
-            let x_pos = ((event.position.x - X_OFFSET) / 48.0).floor() * 48.0 + 24.0;
-            let y_pos = ((event.position.y - Y_OFFSET) / 48.0).floor() * 48.0 + 24.0;
+            let x_pos = ((event.position.x - X_SCREEN_OFFSET) / 48.0).floor() * 48.0 + 24.0;
+            let y_pos = ((event.position.y - Y_SCREEN_OFFSET) / 48.0).floor() * 48.0 + 24.0;
 
             transform.translation.x = x_pos;
             transform.translation.y = y_pos;

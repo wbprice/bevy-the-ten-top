@@ -8,6 +8,7 @@ mod scene;
 mod sidebar;
 mod tasks;
 mod title_screen;
+mod building;
 
 pub use self::{
     actor::{Actor, ActorPlugin, Velocity},
@@ -20,4 +21,5 @@ pub use self::{
     sidebar::SidebarPlugin,
     tasks::{Task, Tasks, TasksPlugin, TasksQueue},
     title_screen::TitleScreenPlugin,
+    building::BuildingPlugin,
 };
