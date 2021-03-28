@@ -2,6 +2,7 @@ mod actor;
 mod cash_register;
 mod dish;
 mod employee;
+mod mouse;
 mod patron;
 mod scene;
 mod sidebar;
@@ -13,6 +14,7 @@ pub use self::{
     cash_register::CashRegisterPlugin,
     dish::{Dish, DishPlugin, DishType},
     employee::{Destination, Employee, EmployeePlugin},
+    mouse::MousePlugin,
     patron::{Craving, Fullness, Patron, PatronPlugin},
     scene::ScenePlugin,
     sidebar::SidebarPlugin,
