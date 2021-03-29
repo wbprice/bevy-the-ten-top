@@ -54,6 +54,7 @@ fn follow_mouse(
     mouse_button_input_events: Res<Events<MouseButtonInput>>,
     mouse_motion_events: Res<Events<MouseMotion>>,
     cursor_moved_events: Res<Events<CursorMoved>>,
+    mouse_wheel_events: Res<Events<MouseWheel>>,
     commands: &mut Commands,
     mut query: Query<(&MouseTile, &mut Transform)>,
     mut building_queue: ResMut<BuildingQueue>,
@@ -78,15 +79,25 @@ fn follow_mouse(
                 match event.button {
                     MouseButton::Left => match event.state {
                         ElementState::Pressed => {
+                            dbg!(event);
+                            dbg!(x_pos);
+                            dbg!(y_pos);
+
                             building_queue
                                 .0
                                 .push((Building { x: x_pos, y: y_pos }, BuildingType::Wall));
                         }
                         _ => {}
                     },
-                    _ => {}
+                    _ => {
+                        dbg!(event);
+                    }
                 }
             }
+        }
+
+        for event in state.mouse_wheel_event_reader.iter(&mouse_wheel_events) {
+            dbg!(event);
         }
     }
 }

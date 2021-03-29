@@ -1,4 +1,4 @@
-use crate::{GameState, STAGE, X_SCREEN_OFFSET, Y_SCREEN_OFFSET};
+use crate::{GameState, STAGE};
 use bevy::prelude::*;
 
 pub struct Building {
@@ -50,12 +50,20 @@ fn add_buildings(
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     mut building_queue: ResMut<BuildingQueue>,
+    query: Query<&Building>,
 ) {
     if let Some((building, building_type)) = building_queue.0.pop() {
+        // There can only be one building at a location
+        for (b) in query.iter() {
+            if building.x == b.x && building.y == b.y {
+                dbg!("redundant");
+                return;
+            }
+        }
+
         let texture_handle = asset_server.load("sprites/wall-tiles.png");
         let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(24.0, 24.0), 1, 1);
         let texture_atlas_handle = texture_atlases.add(texture_atlas);
-
         let mut transform = Transform::from_translation(Vec3::new(building.x, building.y, 0.0));
 
         transform.scale = Vec3::splat(2.0);
