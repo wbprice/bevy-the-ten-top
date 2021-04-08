@@ -3,7 +3,7 @@ use bevy::{
     prelude::*,
 };
 
-use crate::{GameState, STAGE};
+use crate::GameState;
 pub struct TitleScreenPlugin;
 struct TitleData {
     title_entity: Entity,
@@ -11,24 +11,25 @@ struct TitleData {
 
 impl Plugin for TitleScreenPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.on_state_enter(STAGE, GameState::TitleScreen, setup.system())
-            .on_state_update(
-                STAGE,
-                GameState::TitleScreen,
-                keyboard_input_system.system(),
+        app
+            .add_system_set(SystemSet::on_enter(GameState::TitleScreen).with_system(setup.system()))
+            .add_system_set(
+                SystemSet::on_update(GameState::TitleScreen)
+                    .with_system(keyboard_input_system.system()),
             )
-            .on_state_exit(STAGE, GameState::TitleScreen, teardown.system());
+            .add_system_set(
+                SystemSet::on_exit(GameState::TitleScreen).with_system(teardown.system()),
+            );
     }
 }
 
 fn setup(
-    commands: &mut Commands,
+    mut commands: Commands,
     mut materials: ResMut<Assets<ColorMaterial>>,
     asset_server: Res<AssetServer>,
 ) {
-    commands
-        .spawn(CameraUiBundle::default())
-        .spawn(NodeBundle {
+    let id = commands
+        .spawn_bundle(NodeBundle {
             style: Style {
                 size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
                 position_type: PositionType::Absolute,
@@ -41,7 +42,7 @@ fn setup(
         })
         .with_children(|parent| {
             parent
-                .spawn(NodeBundle {
+                .spawn_bundle(NodeBundle {
                     style: Style {
                         size: Size::new(Val::Px(300.0), Val::Px(150.0)),
                         justify_content: JustifyContent::Center,
@@ -52,44 +53,52 @@ fn setup(
                     ..Default::default()
                 })
                 .with_children(|parent| {
-                    parent.spawn(TextBundle {
-                        text: Text {
-                            value: "The Ten Top".to_string(),
-                            font: asset_server.load("fonts/04B_03__.ttf"),
-                            style: TextStyle {
+                    parent.spawn_bundle(TextBundle {
+                        text: Text::with_section(
+                            "The Ten Top",
+                            TextStyle {
+                                font: asset_server.load("fonts/04B_03__.ttf"),
                                 font_size: 24.0,
                                 color: Color::rgb(0.0, 0.0, 0.0),
-                                ..Default::default()
                             },
+                            Default::default(),
+                        ),
+                        style: Style {
+                            ..Default::default()
                         },
                         ..Default::default()
                     });
-                    parent.spawn(TextBundle {
-                        text: Text {
-                            value: "Press <Enter> to start!".to_string(),
-                            font: asset_server.load("fonts/04B_03__.ttf"),
-                            style: TextStyle {
+
+                    parent.spawn_bundle(TextBundle {
+                        text: Text::with_section(
+                            "Press <Enter> to start!",
+                            TextStyle {
+                                font: asset_server.load("fonts/04B_03__.ttf"),
                                 font_size: 16.0,
                                 color: Color::rgb(0.0, 0.0, 0.0),
                                 ..Default::default()
                             },
+                            Default::default(),
+                        ),
+                        style: Style {
+                            ..Default::default()
                         },
                         ..Default::default()
                     });
                 });
-        });
+        }).id();
 
     commands.insert_resource(TitleData {
-        title_entity: commands.current_entity().unwrap(),
+        title_entity: id
     });
 }
 
 fn keyboard_input_system(mut state: ResMut<State<GameState>>, keyboard_input: Res<Input<KeyCode>>) {
     if keyboard_input.just_pressed(KeyCode::Return) {
-        state.set_next(GameState::Playing).unwrap();
+        state.set(GameState::Playing).unwrap();
     }
 }
 
-fn teardown(commands: &mut Commands, title_data: Res<TitleData>) {
-    commands.despawn_recursive(title_data.title_entity);
+fn teardown(mut commands: Commands, title_data: Res<TitleData>) {
+    commands.entity(title_data.title_entity).despawn_recursive();
 }

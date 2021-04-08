@@ -1,14 +1,16 @@
 use crate::{
-    plugins::{Craving, Destination, DishType, Fullness, Patron, Task, Tasks},
-    GameState, STAGE,
+    plugins::{Craving, DishType, Fullness, Patron, Task, Tasks},
+    GameState,
 };
 use bevy::prelude::*;
 
 pub struct CashRegisterPlugin;
 impl Plugin for CashRegisterPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.on_state_enter(STAGE, GameState::Playing, setup.system())
-            .on_state_update(STAGE, GameState::Playing, attract_patrons.system());
+        app.add_system_set(SystemSet::on_enter(GameState::Playing).with_system(setup.system()))
+            .add_system_set(
+                SystemSet::on_update(GameState::Playing).with_system(attract_patrons.system()),
+            );
     }
 }
 
@@ -17,7 +19,7 @@ struct Attracted;
 pub struct Menu(Vec<DishType>);
 
 fn setup(
-    commands: &mut Commands,
+    mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
@@ -28,18 +30,19 @@ fn setup(
     let mut transform = Transform::from_translation(Vec3::new(0.0, 0.0, 1.0));
     transform.scale = Vec3::splat(3.0);
     commands
-        .spawn(Camera2dBundle::default())
-        .spawn(SpriteSheetBundle {
+        .spawn()
+        .insert(OrthographicCameraBundle::new_2d())
+        .insert_bundle(SpriteSheetBundle {
             texture_atlas: texture_atlas_handle,
             transform,
             ..Default::default()
         })
-        .with(CashRegister)
-        .with(Menu(vec![DishType::HotDog]));
+        .insert(CashRegister)
+        .insert(Menu(vec![DishType::HotDog]));
 }
 
 fn attract_patrons(
-    commands: &mut Commands,
+    mut commands: Commands,
     register_query: Query<(Entity, &CashRegister, &Menu, &Transform)>,
     mut patron_query: Query<(Entity, &Patron, &Fullness, &Craving, &Transform), Without<Attracted>>,
 ) {
@@ -49,11 +52,8 @@ fn attract_patrons(
                 if (register_transform.translation - patron_transform.translation).length() < 256.0
                 {
                     if fullness.0 < 75.0 {
-                        commands.insert_one(
-                            patron,
-                            Task::new(Tasks::RequestOrder(craving.0, register)),
-                        );
-                        commands.insert_one(patron, Attracted);
+                        commands.entity(patron).insert(Task::new(Tasks::RequestOrder(craving.0, register)));
+                        commands.entity(patron).insert(Attracted);
                     }
                 }
             }

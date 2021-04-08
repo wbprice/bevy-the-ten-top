@@ -1,11 +1,11 @@
 use bevy::{
-    input::mouse::{MouseButtonInput, MouseMotion, MouseWheel},
+    input::mouse::{MouseButtonInput, MouseMotion},
     input::ElementState,
     prelude::*,
     window::CursorMoved,
 };
 
-use crate::{GameState, SCREEN_HEIGHT, SCREEN_WIDTH, STAGE};
+use crate::{GameState, SCREEN_HEIGHT, SCREEN_WIDTH};
 
 const X_OFFSET: f32 = SCREEN_WIDTH / 2.0;
 const Y_OFFSET: f32 = SCREEN_HEIGHT / 2.0;
@@ -13,23 +13,17 @@ const Y_OFFSET: f32 = SCREEN_HEIGHT / 2.0;
 pub struct MousePlugin;
 pub struct MouseTile;
 
-#[derive(Default)]
-struct MouseState {
-    mouse_button_event_reader: EventReader<MouseButtonInput>,
-    mouse_motion_event_reader: EventReader<MouseMotion>,
-    cursor_moved_event_reader: EventReader<CursorMoved>,
-    mouse_wheel_event_reader: EventReader<MouseWheel>,
-}
-
 impl Plugin for MousePlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.on_state_enter(STAGE, GameState::Playing, setup.system())
-            .on_state_update(STAGE, GameState::Playing, follow_mouse.system());
+        app.add_system_set(SystemSet::on_enter(GameState::Playing).with_system(setup.system()))
+            .add_system_set(
+                SystemSet::on_update(GameState::Playing).with_system(follow_mouse.system()),
+            );
     }
 }
 
 fn setup(
-    commands: &mut Commands,
+    mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
@@ -41,23 +35,22 @@ fn setup(
     transform.scale = Vec3::splat(2.0);
 
     commands
-        .spawn(SpriteSheetBundle {
+        .spawn_bundle(SpriteSheetBundle {
             texture_atlas: texture_atlas_handle,
             transform,
             ..Default::default()
         })
-        .with(MouseTile);
+        .insert(MouseTile);
 }
 
 fn follow_mouse(
-    mut state: Local<MouseState>,
-    mouse_button_input_events: Res<Events<MouseButtonInput>>,
-    mouse_motion_events: Res<Events<MouseMotion>>,
-    cursor_moved_events: Res<Events<CursorMoved>>,
-    commands: &mut Commands,
+    mut mouse_button_input_events: EventReader<MouseButtonInput>,
+    mut mouse_motion_events: EventReader<MouseMotion>,
+    mut cursor_moved_events: EventReader<CursorMoved>,
+    mut commands: Commands,
     mut query: Query<(&MouseTile, &mut Transform)>,
 ) {
-    for event in state.cursor_moved_event_reader.iter(&cursor_moved_events) {
+    for event in cursor_moved_events.iter() {
         for (_mouse_tile, mut transform) in query.iter_mut() {
             // translate event coordinates to transform coordinates
             // The origin for events is relative to the lower left corner
@@ -70,10 +63,7 @@ fn follow_mouse(
             transform.translation.x = x_pos;
             transform.translation.y = y_pos;
 
-            for event in state
-                .mouse_button_event_reader
-                .iter(&mouse_button_input_events)
-            {
+            for event in mouse_button_input_events.iter() {
                 match event.button {
                     MouseButton::Left => match event.state {
                         ElementState::Pressed => {

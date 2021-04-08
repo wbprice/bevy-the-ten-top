@@ -31,7 +31,7 @@ fn setup(asset_server: Res<AssetServer>, mut scene_spawner: ResMut<SceneSpawner>
 }
 
 fn render_kitchen(
-    commands: &mut Commands,
+    mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     query: Query<(&Entity, &FloorTile), Changed<FloorTile>>,
@@ -45,7 +45,7 @@ fn render_kitchen(
         transform.scale = Vec3::splat(1.0);
 
         commands
-            .spawn(SpriteSheetBundle {
+            .spawn_bundle(SpriteSheetBundle {
                 texture_atlas: texture_atlas_handle,
                 transform,
                 sprite: TextureAtlasSprite {
@@ -54,7 +54,7 @@ fn render_kitchen(
                 },
                 ..Default::default()
             })
-            .with(FloorTile {
+            .insert(FloorTile {
                 x: tile.x,
                 y: tile.y,
             });

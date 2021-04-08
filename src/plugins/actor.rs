@@ -21,11 +21,11 @@ pub struct ActorPlugin;
 
 impl Plugin for ActorPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_resource(ActorAnimationTimer(Timer::from_seconds(0.1, true)))
-            .on_state_update(STAGE, GameState::Playing, animate_actor_sprites.system())
-            .on_state_update(STAGE, GameState::Playing, move_actors.system())
-            .on_state_update(STAGE, GameState::Playing, warp_around.system())
-            .on_state_update(STAGE, GameState::Playing, move_to_destination.system());
+        app.insert_resource(ActorAnimationTimer(Timer::from_seconds(0.1, true)))
+            .add_system_set(SystemSet::on_update(GameState::Playing).with_system(animate_actor_sprites.system()))
+            .add_system_set(SystemSet::on_update(GameState::Playing).with_system(move_actors.system()))
+            .add_system_set(SystemSet::on_update(GameState::Playing).with_system(warp_around.system()))
+            .add_system_set(SystemSet::on_update(GameState::Playing).with_system(move_to_destination.system()));
     }
 }
 
@@ -41,7 +41,7 @@ fn animate_actor_sprites(
         &Handle<TextureAtlas>,
     )>,
 ) {
-    if !timer.0.tick(time.delta_seconds()).just_finished() {
+    if !timer.0.tick(time.delta()).just_finished() {
         return;
     }
 
@@ -61,7 +61,7 @@ fn animate_actor_sprites(
 }
 
 fn move_to_destination(
-    commands: &mut Commands,
+    mut commands: Commands,
     mut query: Query<(Entity, &Actor, &Transform, &mut Velocity, &Destination)>,
 ) {
     for (entity, _actor, transform, mut velocity, destination) in query.iter_mut() {
@@ -72,7 +72,7 @@ fn move_to_destination(
         let distance = difference.length();
 
         if distance < close_enough {
-            commands.remove_one::<Destination>(entity);
+            commands.entity(entity).remove::<Destination>();
             velocity.0 = 0.0;
             velocity.1 = 0.0;
         } else {

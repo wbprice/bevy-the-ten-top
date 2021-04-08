@@ -1,6 +1,6 @@
 use crate::{
     plugins::{Actor, Velocity},
-    GameState, STAGE,
+    GameState,
 };
 use bevy::prelude::*;
 
@@ -13,12 +13,12 @@ pub struct Destination(pub Vec3);
 
 impl Plugin for EmployeePlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.on_state_enter(STAGE, GameState::Playing, setup.system());
+        app.add_system_set(SystemSet::on_enter(GameState::Playing).with_system(setup.system()));
     }
 }
 
 fn setup(
-    commands: &mut Commands,
+    mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
@@ -29,15 +29,16 @@ fn setup(
     let mut transform = Transform::from_translation(Vec3::new(-215.0, 0.0, 0.0));
     transform.scale = Vec3::splat(3.0);
     commands
-        .spawn(Camera2dBundle::default())
-        .spawn(SpriteSheetBundle {
+        .spawn()
+        .insert(OrthographicCameraBundle::new_2d())
+        .insert(SpriteSheetBundle {
             texture_atlas: texture_atlas_handle,
             transform,
             ..Default::default()
         })
-        .with(Actor {
+        .insert(Actor {
             name: "Gerald".to_string(),
         })
-        .with(Employee {})
-        .with(Velocity(0.0, 0.0));
+        .insert(Employee {})
+        .insert(Velocity(0.0, 0.0));
 }

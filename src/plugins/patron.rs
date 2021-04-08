@@ -13,14 +13,16 @@ struct FullnessTimer(Timer);
 
 impl Plugin for PatronPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_resource(FullnessTimer(Timer::from_seconds(1.0, true)))
-            .on_state_enter(STAGE, GameState::Playing, setup.system())
-            .on_state_update(STAGE, GameState::Playing, decrement_fullness.system());
+        app.insert_resource(FullnessTimer(Timer::from_seconds(1.0, true)))
+            .add_system_set(SystemSet::on_enter(GameState::Playing).with_system(setup.system()))
+            .add_system_set(
+                SystemSet::on_update(GameState::Playing).with_system(decrement_fullness.system()),
+            );
     }
 }
 
 fn setup(
-    commands: &mut Commands,
+    mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
@@ -31,18 +33,19 @@ fn setup(
     let mut transform = Transform::from_translation(Vec3::new(-215.0, -100.0, 0.0));
     transform.scale = Vec3::splat(3.0);
     commands
-        .spawn(SpriteSheetBundle {
+        .spawn()
+        .insert_bundle(SpriteSheetBundle {
             texture_atlas: texture_atlas_handle,
             transform,
             ..Default::default()
         })
-        .with(Actor {
+        .insert(Actor {
             name: "Susan".to_string(),
         })
-        .with(Patron)
-        .with(Craving(DishType::HotDog))
-        .with(Fullness(50.0))
-        .with(Velocity(96.0, 0.0));
+        .insert(Patron)
+        .insert(Craving(DishType::HotDog))
+        .insert(Fullness(50.0))
+        .insert(Velocity(96.0, 0.0));
 }
 
 fn decrement_fullness(
@@ -50,7 +53,7 @@ fn decrement_fullness(
     mut timer: ResMut<FullnessTimer>,
     mut query: Query<(Entity, &mut Fullness)>,
 ) {
-    if !timer.0.tick(time.delta_seconds()).just_finished() {
+    if !timer.0.tick(time.delta()).just_finished() {
         return;
     }
 

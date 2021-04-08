@@ -1,4 +1,4 @@
-use crate::{GameState, STAGE};
+use crate::GameState;
 use bevy::prelude::*;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -11,12 +11,12 @@ pub struct DishPlugin;
 
 impl Plugin for DishPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.on_state_enter(STAGE, GameState::Playing, setup.system());
+        app.add_system_set(SystemSet::on_enter(GameState::Playing).with_system(setup.system()));
     }
 }
 
 fn setup(
-    commands: &mut Commands,
+    mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
@@ -25,10 +25,10 @@ fn setup(
     transform.scale = Vec3::splat(3.0);
 
     commands
-        .spawn(SpriteBundle {
+        .spawn_bundle(SpriteBundle {
             material: materials.add(texture_handle.into()),
             transform,
             ..Default::default()
         })
-        .with(Dish(DishType::HotDog));
+        .insert(Dish(DishType::HotDog));
 }

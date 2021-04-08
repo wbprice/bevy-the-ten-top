@@ -1,22 +1,21 @@
 use bevy::prelude::*;
 
-use crate::{GameState, STAGE};
+use crate::{GameState};
 pub struct SidebarPlugin;
 
 impl Plugin for SidebarPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.on_state_enter(STAGE, GameState::Playing, setup.system());
+        app.add_system_set(SystemSet::on_enter(GameState::Playing).with_system(setup.system()));
     }
 }
 
 fn setup(
-    commands: &mut Commands,
+    mut commands: Commands,
     mut materials: ResMut<Assets<ColorMaterial>>,
     asset_server: Res<AssetServer>,
 ) {
     commands
-        .spawn(CameraUiBundle::default())
-        .spawn(NodeBundle {
+        .spawn_bundle(NodeBundle {
             style: Style {
                 size: Size::new(Val::Px(200.0), Val::Percent(100.0)),
                 position_type: PositionType::Absolute,
@@ -32,7 +31,7 @@ fn setup(
         })
         .with_children(|parent| {
             parent
-                .spawn(NodeBundle {
+                .spawn_bundle(NodeBundle {
                     style: Style {
                         size: Size::new(Val::Px(176.0), Val::Percent(100.0)),
                         position_type: PositionType::Relative,
@@ -49,15 +48,18 @@ fn setup(
                     ..Default::default()
                 })
                 .with_children(|parent| {
-                    parent.spawn(TextBundle {
-                        text: Text {
-                            value: "The Ten Top".to_string(),
-                            font: asset_server.load("fonts/04B_03__.ttf"),
-                            style: TextStyle {
+                    parent.spawn_bundle(TextBundle {
+                        text: Text::with_section(
+                            "The Ten Top",
+                            TextStyle {
+                                font: asset_server.load("fonts/04B_03__.ttf"),
                                 font_size: 24.0,
                                 color: Color::BLACK,
-                                ..Default::default()
                             },
+                            Default::default(),
+                        ),
+                        style: Style {
+                            ..Default::default()
                         },
                         ..Default::default()
                     });
