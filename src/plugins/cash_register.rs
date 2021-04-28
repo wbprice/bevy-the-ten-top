@@ -31,7 +31,6 @@ fn setup(
     transform.scale = Vec3::splat(3.0);
     commands
         .spawn()
-        .insert(OrthographicCameraBundle::new_2d())
         .insert_bundle(SpriteSheetBundle {
             texture_atlas: texture_atlas_handle,
             transform,

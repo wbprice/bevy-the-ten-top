@@ -33,8 +33,8 @@ fn main() {
             mode: WindowMode::Windowed,
             ..Default::default()
         })
-        .add_state(GameState::TitleScreen)
         .add_startup_system(setup_camera.system())
+        .add_state(GameState::TitleScreen)
         .add_plugins(DefaultPlugins)
         .add_plugin(EmployeePlugin)
         .add_plugin(PatronPlugin)

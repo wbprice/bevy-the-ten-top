@@ -11,8 +11,7 @@ struct TitleData {
 
 impl Plugin for TitleScreenPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app
-            .add_system_set(SystemSet::on_enter(GameState::TitleScreen).with_system(setup.system()))
+        app.add_system_set(SystemSet::on_enter(GameState::TitleScreen).with_system(setup.system()))
             .add_system_set(
                 SystemSet::on_update(GameState::TitleScreen)
                     .with_system(keyboard_input_system.system()),
@@ -86,11 +85,10 @@ fn setup(
                         ..Default::default()
                     });
                 });
-        }).id();
+        })
+        .id();
 
-    commands.insert_resource(TitleData {
-        title_entity: id
-    });
+    commands.insert_resource(TitleData { title_entity: id });
 }
 
 fn keyboard_input_system(mut state: ResMut<State<GameState>>, keyboard_input: Res<Input<KeyCode>>) {

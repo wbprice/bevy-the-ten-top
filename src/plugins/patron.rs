@@ -1,6 +1,6 @@
 use crate::{
     plugins::{Actor, DishType, Velocity},
-    GameState, STAGE,
+    GameState,
 };
 use bevy::prelude::*;
 pub struct PatronPlugin;
@@ -58,6 +58,7 @@ fn decrement_fullness(
     }
 
     for (_entity, mut fullness) in query.iter_mut() {
+        dbg!(fullness.0);
         fullness.0 -= 5.0;
     }
 }
