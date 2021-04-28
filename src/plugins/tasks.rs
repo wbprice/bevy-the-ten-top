@@ -6,7 +6,7 @@ pub struct TasksPlugin;
 
 impl Plugin for TasksPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_resource(TasksQueue(vec![]))
+        app.insert_resource(TasksQueue(vec![]))
             .add_system(goto_entity.system())
             .add_system(give_to.system())
             .add_system(assign_tasks.system())
@@ -91,28 +91,28 @@ enum StepStatus {
 
 // This takes a task off the stack and assigns it to an idle employee actor.
 fn assign_tasks(
-    commands: &mut Commands,
+    mut commands: Commands,
     mut tasks: ResMut<TasksQueue>,
     query: Query<(Entity, &Actor, &Employee), Without<Task>>,
 ) {
     for (entity, _actor, _employee) in query.iter() {
         if let Some(task) = tasks.0.pop() {
-            commands.insert_one(entity, task);
+            commands.entity(entity).insert(task);
         }
     }
 }
 
 // This removes completed tasks from the actors who have them.
-fn remove_tasks(commands: &mut Commands, query: Query<(Entity, &Actor, &Task)>) {
+fn remove_tasks(mut commands: Commands, query: Query<(Entity, &Actor, &Task)>) {
     for (entity, _actor, task) in query.iter() {
         // If all subtasks are completed, remove the task from the entity.ms
         if task.steps.len() == 0 {
-            commands.remove_one::<Task>(entity);
+            commands.entity(entity).remove::<Task>();
         }
     }
 }
 
-fn leave(commands: &mut Commands, mut query: Query<(Entity, &Patron, &mut Task)>) {
+fn leave(mut commands: Commands, mut query: Query<(Entity, &Patron, &mut Task)>) {
     for (entity, _patron, mut task) in query.iter_mut() {
         if let Some(step) = task.steps.first_mut() {
             if let Steps::Leave = step.step {
@@ -121,7 +121,9 @@ fn leave(commands: &mut Commands, mut query: Query<(Entity, &Patron, &mut Task)>
                         step.status = StepStatus::InProgress;
                     }
                     StepStatus::InProgress => {
-                        commands.insert_one(entity, Destination(Vec3::new(0.0, -256.0, 0.0)));
+                        commands
+                            .entity(entity)
+                            .insert(Destination(Vec3::new(0.0, -256.0, 0.0)));
                         step.status = StepStatus::Completed;
                     }
                     StepStatus::Completed => {
@@ -187,7 +189,7 @@ fn wait_for_dish(
     }
 }
 
-fn give_to(commands: &mut Commands, mut query: Query<(Entity, &Actor, &Children, &mut Task)>) {
+fn give_to(mut commands: Commands, mut query: Query<(Entity, &Actor, &Children, &mut Task)>) {
     for (_entity, _actor, children, mut task) in query.iter_mut() {
         if let Some(step) = task.steps.first_mut() {
             if let Steps::GiveTo(owner) = step.step {
@@ -199,8 +201,8 @@ fn give_to(commands: &mut Commands, mut query: Query<(Entity, &Actor, &Children,
                         let item = children.first().unwrap();
                         let mut transform = Transform::from_translation(Vec3::new(6.0, -6.0, 1.0));
                         transform.scale = Vec3::splat(1.0);
-                        commands.insert_one(*item, transform);
-                        commands.push_children(owner, &[*item]);
+                        commands.entity(*item).insert(transform);
+                        commands.entity(owner).push_children(&[*item]);
                         step.status = StepStatus::Completed;
                     }
                     StepStatus::Completed => {
@@ -212,7 +214,7 @@ fn give_to(commands: &mut Commands, mut query: Query<(Entity, &Actor, &Children,
     }
 }
 
-fn set_item_owner(commands: &mut Commands, mut query: Query<(Entity, &Actor, &mut Task)>) {
+fn set_item_owner(mut commands: Commands, mut query: Query<(Entity, &Actor, &mut Task)>) {
     for (_entity, _actor, mut task) in query.iter_mut() {
         if let Some(step) = task.steps.first_mut() {
             if let Steps::SetItemOwner(item, owner) = step.step {
@@ -221,10 +223,10 @@ fn set_item_owner(commands: &mut Commands, mut query: Query<(Entity, &Actor, &mu
                         step.status = StepStatus::InProgress;
                     }
                     StepStatus::InProgress => {
-                        commands.push_children(owner, &[item]);
+                        commands.entity(owner).push_children(&[item]);
                         let mut transform = Transform::from_translation(Vec3::new(6.0, -6.0, 1.0));
                         transform.scale = Vec3::splat(1.0);
-                        commands.insert_one(item, transform);
+                        commands.entity(item).insert(transform);
                         step.status = StepStatus::Completed;
                     }
                     StepStatus::Completed => {
@@ -272,7 +274,7 @@ fn find_dish(
 }
 
 fn goto_entity(
-    commands: &mut Commands,
+    mut commands: Commands,
     mut query: Query<(Entity, &Actor, &mut Task)>,
     destination_query: Query<(Entity, &Transform), Without<Destination>>,
     actor_query: Query<(Entity, &Actor, &Destination, &Transform)>,
@@ -286,8 +288,7 @@ fn goto_entity(
                         // Add a destination to the actor
                         for (dest_entity, dest_transform) in destination_query.iter() {
                             if goto_entity == dest_entity {
-                                commands
-                                    .insert_one(entity, Destination(dest_transform.translation));
+                                commands.entity(entity).insert(dest_transform.translation);
                                 step.status = StepStatus::InProgress;
                             }
                         }
