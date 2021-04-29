@@ -22,10 +22,19 @@ pub struct ActorPlugin;
 impl Plugin for ActorPlugin {
     fn build(&self, app: &mut AppBuilder) {
         app.insert_resource(ActorAnimationTimer(Timer::from_seconds(0.1, true)))
-            .add_system_set(SystemSet::on_update(GameState::Playing).with_system(animate_actor_sprites.system()))
-            .add_system_set(SystemSet::on_update(GameState::Playing).with_system(move_actors.system()))
-            .add_system_set(SystemSet::on_update(GameState::Playing).with_system(warp_around.system()))
-            .add_system_set(SystemSet::on_update(GameState::Playing).with_system(move_to_destination.system()));
+            .add_system_set(
+                SystemSet::on_update(GameState::Playing)
+                    .with_system(animate_actor_sprites.system()),
+            )
+            .add_system_set(
+                SystemSet::on_update(GameState::Playing).with_system(move_actors.system()),
+            )
+            .add_system_set(
+                SystemSet::on_update(GameState::Playing).with_system(warp_around.system()),
+            )
+            .add_system_set(
+                SystemSet::on_update(GameState::Playing).with_system(move_to_destination.system()),
+            );
     }
 }
 

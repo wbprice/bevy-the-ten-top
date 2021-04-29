@@ -51,7 +51,9 @@ fn attract_patrons(
                 if (register_transform.translation - patron_transform.translation).length() < 256.0
                 {
                     if fullness.0 < 75.0 {
-                        commands.entity(patron).insert(Task::new(Tasks::RequestOrder(craving.0, register)));
+                        commands
+                            .entity(patron)
+                            .insert(Task::new(Tasks::RequestOrder(craving.0, register)));
                         commands.entity(patron).insert(Attracted);
                     }
                 }
