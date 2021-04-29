@@ -1,4 +1,4 @@
-use crate::{plugins::Destination, GameState, SCREEN_HEIGHT, SCREEN_WIDTH};
+use crate::{GameState, SCREEN_HEIGHT, SCREEN_WIDTH};
 
 use bevy::prelude::*;
 
@@ -9,6 +9,8 @@ pub struct Actor {
 
 #[derive(Debug)]
 pub struct Velocity(pub f32, pub f32);
+#[derive(Copy, Clone)]
+pub struct Destination(pub Vec2);
 
 pub struct ActorAnimationTimer(Timer);
 

@@ -19,7 +19,7 @@ impl Plugin for TasksPlugin {
     }
 }
 
-pub enum TaskType {
+pub enum Tasks {
     GoTo(Vec2)
 }
 
@@ -30,16 +30,43 @@ enum TaskStatus {
 }
 
 struct Task {
-    Task
+    status: TaskStatus,
+    variant: Tasks,
 }
 
-enum Tasks {
-    Goto(TaskStatus)
+impl Task {
+    fn new(variant: Tasks) -> Task {
+        match variant {
+            Tasks::GoTo(vec2) => {
+                return Task {
+                    status: TaskStatus::New,
+                    variant: Tasks::GoTo(vec2)
+                }
+            }
+        }
+    }
 }
 
 fn goto(
-    mut query: Query<&Actor>
+    mut commands: Commands,
+    mut query: Query<(Entity, &Actor, &Transform, &mut Task)>,
 ) {
+    for (entity, actor, transform, task) in query.iter_mut() {
+        if let Tasks::GoTo(dest) = task.variant {
+            match task.status {
+                TaskStatus::New => {
+                    commands.entity(entity).insert(Destination(dest));
+                    task.status = TaskStatus::InProgress;
+                },
+                TaskStatus::InProgress => {
+                    // Is the actor close enough to the destination?
+                    if (transform.translation.as - 
+                }
+                TaskStatus::Completed => {
 
+                }
+            }
+        }
+    }
 }
 

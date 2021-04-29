@@ -8,9 +8,6 @@ pub struct EmployeePlugin;
 
 pub struct Employee;
 
-#[derive(Copy, Clone)]
-pub struct Destination(pub Vec3);
-
 impl Plugin for EmployeePlugin {
     fn build(&self, app: &mut AppBuilder) {
         app.add_system_set(SystemSet::on_enter(GameState::Playing).with_system(setup.system()));

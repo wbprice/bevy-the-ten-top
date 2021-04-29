@@ -10,10 +10,10 @@ mod tasks;
 mod title_screen;
 
 pub use self::{
-    actor::{Actor, ActorPlugin, Velocity},
+    actor::{Actor, ActorPlugin, Velocity, Destination},
     cash_register::CashRegisterPlugin,
     dish::{Dish, DishPlugin, DishType},
-    employee::{Destination, Employee, EmployeePlugin},
+    employee::{Employee, EmployeePlugin},
     mouse::MousePlugin,
     patron::{Craving, Fullness, Patron, PatronPlugin},
     scene::ScenePlugin,
