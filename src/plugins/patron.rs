@@ -1,5 +1,5 @@
 use crate::{
-    plugins::{Actor, DishType, Task, Tasks, TaskVariants, Velocity},
+    plugins::{Actor, DishType, Task, TaskVariants, Tasks, Velocity},
     GameState,
 };
 use bevy::prelude::*;

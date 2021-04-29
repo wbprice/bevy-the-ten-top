@@ -1,5 +1,5 @@
 use crate::{
-    plugins::{Craving, DishType, Fullness, Patron, Task, TaskVariants},
+    plugins::{Craving, DishType, Fullness, Patron, Task, TaskVariants, Tasks},
     GameState,
 };
 use bevy::prelude::*;
@@ -53,7 +53,7 @@ fn attract_patrons(
                     if fullness.0 < 75.0 {
                         commands
                             .entity(patron)
-                            .insert(Task::new(TaskVariants::GoToEntity(register)));
+                            .insert(Tasks(vec![Task::new(TaskVariants::GoToEntity(register))]));
                         commands.entity(patron).insert(Attracted);
                     }
                 }
