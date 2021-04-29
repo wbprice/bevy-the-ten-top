@@ -10,7 +10,7 @@ pub struct Actor {
 #[derive(Debug)]
 pub struct Velocity(pub f32, pub f32);
 #[derive(Copy, Clone)]
-pub struct Destination(pub Vec2);
+pub struct Destination(pub Vec3);
 
 pub struct ActorAnimationTimer(Timer);
 

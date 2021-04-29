@@ -10,7 +10,7 @@ mod tasks;
 mod title_screen;
 
 pub use self::{
-    actor::{Actor, ActorPlugin, Velocity, Destination},
+    actor::{Actor, ActorPlugin, Destination, Velocity},
     cash_register::CashRegisterPlugin,
     dish::{Dish, DishPlugin, DishType},
     employee::{Employee, EmployeePlugin},
@@ -18,6 +18,6 @@ pub use self::{
     patron::{Craving, Fullness, Patron, PatronPlugin},
     scene::ScenePlugin,
     sidebar::SidebarPlugin,
-    tasks::{Task, Tasks, TasksPlugin, TasksQueue},
+    tasks::{Task, Tasks, TasksPlugin},
     title_screen::TitleScreenPlugin,
 };

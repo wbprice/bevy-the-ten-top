@@ -7,10 +7,10 @@ use bevy::prelude::*;
 pub struct CashRegisterPlugin;
 impl Plugin for CashRegisterPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_system_set(SystemSet::on_enter(GameState::Playing).with_system(setup.system()))
-            .add_system_set(
-                SystemSet::on_update(GameState::Playing).with_system(attract_patrons.system()),
-            );
+        app.add_system_set(SystemSet::on_enter(GameState::Playing).with_system(setup.system()));
+        // .add_system_set(
+        //     SystemSet::on_update(GameState::Playing).with_system(attract_patrons.system()),
+        // );
     }
 }
 
@@ -40,24 +40,24 @@ fn setup(
         .insert(Menu(vec![DishType::HotDog]));
 }
 
-fn attract_patrons(
-    mut commands: Commands,
-    register_query: Query<(Entity, &CashRegister, &Menu, &Transform)>,
-    mut patron_query: Query<(Entity, &Patron, &Fullness, &Craving, &Transform), Without<Attracted>>,
-) {
-    for (register, _register, menu, register_transform) in register_query.iter() {
-        for (patron, _patron, fullness, craving, patron_transform) in patron_query.iter_mut() {
-            if menu.0.contains(&craving.0) {
-                if (register_transform.translation - patron_transform.translation).length() < 256.0
-                {
-                    if fullness.0 < 75.0 {
-                        commands
-                            .entity(patron)
-                            .insert(Task::new(Tasks::RequestOrder(craving.0, register)));
-                        commands.entity(patron).insert(Attracted);
-                    }
-                }
-            }
-        }
-    }
-}
+// fn attract_patrons(
+//     mut commands: Commands,
+//     register_query: Query<(Entity, &CashRegister, &Menu, &Transform)>,
+//     mut patron_query: Query<(Entity, &Patron, &Fullness, &Craving, &Transform), Without<Attracted>>,
+// ) {
+//     for (register, _register, menu, register_transform) in register_query.iter() {
+//         for (patron, _patron, fullness, craving, patron_transform) in patron_query.iter_mut() {
+//             if menu.0.contains(&craving.0) {
+//                 if (register_transform.translation - patron_transform.translation).length() < 256.0
+//                 {
+//                     if fullness.0 < 75.0 {
+//                         commands
+//                             .entity(patron)
+//                             .insert(Task::new(Tasks::RequestOrder(craving.0, register)));
+//                         commands.entity(patron).insert(Attracted);
+//                     }
+//                 }
+//             }
+//         }
+//     }
+// }
