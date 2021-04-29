@@ -1,5 +1,5 @@
 use crate::{
-    plugins::{Actor, DishType, Task, Tasks, Velocity},
+    plugins::{Actor, DishType, Task, Tasks, TaskVariants, Velocity},
     GameState,
 };
 use bevy::prelude::*;
@@ -46,7 +46,9 @@ fn setup(
         .insert(Craving(DishType::HotDog))
         .insert(Fullness(50.0))
         .insert(Velocity(0.0, 0.0))
-        .insert(Task::new(Tasks::GoTo(Vec3::new(128.0, 128.0, 0.0))));
+        .insert(Tasks(vec![Task::new(TaskVariants::GoTo(Vec3::new(
+            128.0, 128.0, 0.0,
+        )))]));
 }
 
 fn decrement_fullness(

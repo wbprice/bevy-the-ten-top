@@ -18,6 +18,6 @@ pub use self::{
     patron::{Craving, Fullness, Patron, PatronPlugin},
     scene::ScenePlugin,
     sidebar::SidebarPlugin,
-    tasks::{Task, Tasks, TasksPlugin},
+    tasks::{Task, Tasks, TaskVariants, TasksPlugin},
     title_screen::TitleScreenPlugin,
 };
