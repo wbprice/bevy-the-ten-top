@@ -63,7 +63,7 @@ fn goto(
     mut query: Query<(Entity, &Actor, &Transform, &mut Velocity, &mut Tasks)>,
 ) {
     for (entity, _actor, transform, mut velocity, mut tasks) in query.iter_mut() {
-        if let Some(task) = tasks.0.first() {
+        if let Some(task) = tasks.0.first_mut() {
             if let TaskVariants::GoTo(dest) = task.variant {
                 match task.status {
                     TaskStatus::New => {
@@ -94,20 +94,18 @@ fn goto(
 
 fn goto_entity(
     mut commands: Commands,
-    query: Query<(Entity, &Tasks)>,
+    mut query: Query<(Entity, &mut Tasks)>,
     entity_query: Query<(Entity, &Transform)>,
 ) {
-    for (entity, tasks) in query.iter() {
-        if let Some(task) = tasks.0.first() {
+    for (entity, mut tasks) in query.iter_mut() {
+        if let Some(task) = tasks.0.first_mut() {
             if let TaskVariants::GoToEntity(target_entity) = task.variant {
                 match task.status {
                     TaskStatus::New => {
                         // Find the entity to go to
                         for (ent, transform) in entity_query.iter() {
                             if ent == target_entity {
-                                commands
-                                    .entity(entity)
-                                    .insert(Task::new(TaskVariants::GoTo(transform.translation)));
+                                *task = Task::new(TaskVariants::GoTo(transform.translation));
                             }
                         }
                     }
