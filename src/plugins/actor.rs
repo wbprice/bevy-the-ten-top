@@ -1,4 +1,4 @@
-use crate::{plugins::Destination, GameState, SCREEN_HEIGHT, SCREEN_WIDTH, STAGE};
+use crate::{plugins::Destination, GameState, SCREEN_HEIGHT, SCREEN_WIDTH};
 
 use bevy::prelude::*;
 
@@ -31,9 +31,6 @@ impl Plugin for ActorPlugin {
             )
             .add_system_set(
                 SystemSet::on_update(GameState::Playing).with_system(warp_around.system()),
-            )
-            .add_system_set(
-                SystemSet::on_update(GameState::Playing).with_system(move_to_destination.system()),
             );
     }
 }
@@ -65,29 +62,6 @@ fn animate_actor_sprites(
             transform.scale = Vec3::new(-3.0, 3.0, 1.0);
         } else {
             transform.scale = Vec3::new(3.0, 3.0, 1.0);
-        }
-    }
-}
-
-fn move_to_destination(
-    mut commands: Commands,
-    mut query: Query<(Entity, &Actor, &Transform, &mut Velocity, &Destination)>,
-) {
-    for (entity, _actor, transform, mut velocity, destination) in query.iter_mut() {
-        let translation = transform.translation;
-        // How close is the entity to the destination?
-        let close_enough = 32.0;
-        let difference = translation - destination.0;
-        let distance = difference.length();
-
-        if distance < close_enough {
-            commands.entity(entity).remove::<Destination>();
-            velocity.0 = 0.0;
-            velocity.1 = 0.0;
-        } else {
-            let heading = (difference.y.atan2(difference.x)) * 180.0 / 3.14;
-            velocity.0 = 50.0 * heading.cos();
-            velocity.1 = 50.0 * heading.sin();
         }
     }
 }
