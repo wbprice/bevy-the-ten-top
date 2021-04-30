@@ -11,7 +11,8 @@ impl Plugin for TasksPlugin {
             .add_system(goto.system())
             .add_system(goto_entity.system())
             .add_system(order_food.system())
-            .add_system(assign_tasks.system());
+            .add_system(assign_tasks.system())
+            .add_system(deliver_food.system());
         // .add_system(goto_entity.system())
         // .add_system(give_to.system())
         // .add_system(assign_tasks.system())
@@ -24,6 +25,7 @@ impl Plugin for TasksPlugin {
     }
 }
 
+#[derive(Clone, Copy)]
 pub struct Order {
     dish: DishType,
     patron: Entity,
@@ -41,6 +43,7 @@ pub enum TaskVariants {
     GoTo(Vec3),
     GoToEntity(Entity),
     OrderFood(DishType),
+    DeliverFood(DishType, Entity)
 }
 
 enum TaskStatus {
@@ -69,8 +72,26 @@ impl Task {
                     status: TaskStatus::New,
                     variant: TaskVariants::OrderFood(dish),
                 }
+            },
+            TaskVariants::DeliverFood(dish, entity) => {
+                return Task {
+                    status: TaskStatus::New,
+                    variant: TaskVariants::DeliverFood(dish, entity),
+                }
             }
         }
+    }
+}
+
+fn assign_tasks(mut orders_queue: ResMut<OrdersQueue>, mut commands: Commands, query: Query<(Entity, &Employee), Without<Tasks>>) {
+    let should_pop = false;
+    if let Some(order) = orders_queue.0.first() {
+        for (entity, _employee) in query.iter() {
+            commands.entity(entity).insert(*order);
+        }
+    }
+    if should_pop {
+        orders_queue.0.pop().unwrap();
     }
 }
 
@@ -156,10 +177,32 @@ fn order_food(mut orders_queue: ResMut<OrdersQueue>, mut query: Query<(Entity, &
     }
 }
 
-fn assign_tasks(mut orders_queue: ResMut<OrdersQueue>, mut commands: Commands, query: Query<Entity, Without<Tasks>>) {
-    if let Some(order) = orders_queue.0.first() {
-        for (entity) in query.iter() {
+fn deliver_food(mut commands: Commands, mut query: Query<(Entity, &mut Tasks)>, mut dish_query: Query<(Entity, &Dish)>) {
+    for (entity, mut tasks) in query.iter_mut() {
+        if let Some(task) = tasks.0.first() {
+            if let TaskVariants::DeliverFood(dish, entity) = task.variant {
+                match task.status {
+                    TaskStatus::New => {
+                        // Does the food exist?
+                        for (e, d) in dish_query.iter() {
+                            if dish == d.0 {
+                                // If so, need to walk over to it
+                                // Pick it up
+                                // and walk back to the patron that ordered it
+                                // and then give it to the patron
+                                tasks.0.push(Task::new(TaskVariants::GoToEntity(e)));
+                                task.status = TaskStatus::InProgress;
+                            }
+                        }
+                    },
+                    TaskStatus::InProgress => {
 
+                    },
+                    TaskStatus::Completed => {
+
+                    }
+                }
+            }
         }
     }
 }
