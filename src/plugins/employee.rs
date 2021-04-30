@@ -27,8 +27,7 @@ fn setup(
     transform.scale = Vec3::splat(3.0);
     commands
         .spawn()
-        .insert(OrthographicCameraBundle::new_2d())
-        .insert(SpriteSheetBundle {
+        .insert_bundle(SpriteSheetBundle {
             texture_atlas: texture_atlas_handle,
             transform,
             ..Default::default()
@@ -36,6 +35,6 @@ fn setup(
         .insert(Actor {
             name: "Gerald".to_string(),
         })
-        .insert(Employee {})
+        .insert(Employee)
         .insert(Velocity(0.0, 0.0));
 }
