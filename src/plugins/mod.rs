@@ -1,8 +1,8 @@
 mod actor;
 mod cash_register;
 mod dish;
-mod ingredient;
 mod employee;
+mod ingredient;
 mod mouse;
 mod patron;
 mod scene;
@@ -14,8 +14,8 @@ pub use self::{
     actor::{Actor, ActorPlugin, Destination, Velocity},
     cash_register::CashRegisterPlugin,
     dish::{Dish, DishPlugin, DishType},
-    ingredient::{Ingredient, IngredientVariant, IngredientPlugin},
     employee::{Employee, EmployeePlugin},
+    ingredient::{Ingredient, IngredientPlugin, IngredientVariant},
     mouse::MousePlugin,
     patron::{Craving, Fullness, Patron, PatronPlugin},
     scene::ScenePlugin,

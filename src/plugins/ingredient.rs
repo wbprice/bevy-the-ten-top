@@ -12,7 +12,7 @@ pub struct IngredientPlugin;
 
 impl Plugin for IngredientPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_system(SystemSet::on_enter(GameState::Playing).with_system(setup.system()));
+        app.add_system_set(SystemSet::on_enter(GameState::Playing).with_system(setup.system()));
     }
 }
 

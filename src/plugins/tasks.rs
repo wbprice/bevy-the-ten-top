@@ -43,7 +43,7 @@ pub enum TaskVariants {
     GoTo(Vec3),
     GoToEntity(Entity),
     OrderFood(DishType),
-    DeliverFood(DishType, Entity)
+    DeliverFood(DishType, Entity),
 }
 
 enum TaskStatus {
@@ -72,7 +72,7 @@ impl Task {
                     status: TaskStatus::New,
                     variant: TaskVariants::OrderFood(dish),
                 }
-            },
+            }
             TaskVariants::DeliverFood(dish, entity) => {
                 return Task {
                     status: TaskStatus::New,
@@ -83,7 +83,11 @@ impl Task {
     }
 }
 
-fn assign_tasks(mut orders_queue: ResMut<OrdersQueue>, mut commands: Commands, query: Query<(Entity, &Employee), Without<Tasks>>) {
+fn assign_tasks(
+    mut orders_queue: ResMut<OrdersQueue>,
+    mut commands: Commands,
+    query: Query<(Entity, &Employee), Without<Tasks>>,
+) {
     let should_pop = false;
     if let Some(order) = orders_queue.0.first() {
         for (entity, _employee) in query.iter() {
@@ -177,7 +181,11 @@ fn order_food(mut orders_queue: ResMut<OrdersQueue>, mut query: Query<(Entity, &
     }
 }
 
-fn deliver_food(mut commands: Commands, mut query: Query<(Entity, &mut Tasks)>, mut dish_query: Query<(Entity, &Dish)>) {
+fn deliver_food(
+    mut commands: Commands,
+    mut query: Query<(Entity, &mut Tasks)>,
+    mut dish_query: Query<(Entity, &Dish)>,
+) {
     for (entity, mut tasks) in query.iter_mut() {
         if let Some(task) = tasks.0.first() {
             if let TaskVariants::DeliverFood(dish, entity) = task.variant {
@@ -194,13 +202,9 @@ fn deliver_food(mut commands: Commands, mut query: Query<(Entity, &mut Tasks)>, 
                                 task.status = TaskStatus::InProgress;
                             }
                         }
-                    },
-                    TaskStatus::InProgress => {
-
-                    },
-                    TaskStatus::Completed => {
-
                     }
+                    TaskStatus::InProgress => {}
+                    TaskStatus::Completed => {}
                 }
             }
         }
